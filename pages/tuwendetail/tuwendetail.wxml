@@ -1,0 +1,25 @@
+<!--pages/tuwendetail/tuwendetail.wxml-->
+<import src="../../utils/wxParse/wxParse.wxml" />
+<import src="../template/artdetailtemplate.wxml" />
+<import src="../template/artdetailinput.wxml" />
+
+<scroll-view scroll-y class='dk-show' >
+
+  <!--标题-->
+  <view class='container-title'>
+    <text class='text-title'>{{artdata.title}}</text>
+  </view>
+
+  <!--文章内容-->
+  <view class='container-html'>
+    <template is="wxParse" data="{{wxParseData:dkcontent.nodes}}" />
+  </view>
+
+
+  <!--下面的标签，评论和输入-->
+  <template is="art-gongyong" data="{{artdetaildata:artdata,pldetaildata:pldata,zhanweiheight:zhanweiheight,clickLikeAnimation:clickLikeAnimation,isAnimatingLike:isAnimatingLike,isAnimatingPlLike:isAnimatingPlLike,isShowBtnCover:isShowBtnCover}}" />
+
+</scroll-view>
+
+<!--输入框-->
+<template is="plinput" data="{{plcount:plcount,collctionpic:artdata.collctionpic,clickCollectionAnimation:clickCollectionAnimation,isAnimatingCollection:isAnimatingCollection,isShowBtnCover:isShowBtnCover}}"/>

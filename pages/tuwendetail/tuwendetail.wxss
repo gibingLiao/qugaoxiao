@@ -1,0 +1,28 @@
+/* pages/tuwendetail/tuwendetail.wxss */
+@import "../template/artdetailtemplate.wxss";
+
+/*scrollview样式*/
+.dk-show{
+  width: 100%;
+  height: 100%;
+}
+
+/*title容器样式*/
+.container-title{
+  margin-left: 26rpx;
+  margin-right: 26rpx;
+  margin-top: 30rpx
+}
+
+/*title文字样式*/
+.text-title{
+  color: #343434;
+  font-size: 42rpx;
+}
+
+/*html容器样式*/
+.container-html{
+  margin-top: 46rpx;
+  margin-left: 26rpx;
+  margin-right: 26rpx;
+}

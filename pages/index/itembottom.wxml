@@ -1,0 +1,49 @@
+<import src="../../utils/tpl.wxml" />
+<template name="art-bottom">
+  <view class='art-item-line'></view>
+  <view class='art-item-bottom no-top-line'>
+
+    <view class='container-zan-click' catchtap='onClickLike' data-index='{{index}}' data-item='{{item}}'>
+      <image class="art-item-bottom-icon art-item-bottom-zan-icon" src="{{item.likepic}}" wx:if="{{isAnimatingLike}}" />
+      <image animation="{{item.clickLikeAnimation}}" class="art-item-bottom-icon art-item-bottom-zan-icon" src="{{item.likepic}}" bindtransitionend="onLikeAnimationEnd" data-index='{{index}}' data-item='{{item}}' />
+      <text class='art-item-bottom-text art-item-bottom-zan-text'>{{item.zancnt}}</text>
+
+      <!--盖一层登录的button-->
+      <button catchtap='loginCatch' data-index='{{index}}' data-item='{{item}}' data-type='0' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo' class='btn-zan-login' wx:if="{{isShowBtnCover}}"></button>
+
+    </view>
+
+    <image class="art-item-bottom-icon art-item-bottom-pl-icon" src="../imgs/content_btn_commented.png" wx:if="{{item.commentstatus=='1'}}"></image>
+    <image class="art-item-bottom-icon art-item-bottom-pl-icon" src="../imgs/content_btn_comment.png" wx:else></image>
+    <text class='art-item-bottom-text art-item-bottom-pl-text'>{{item.plcnt}}</text>
+
+    <view class='art-item-bottom-icon container-collection-click' catchtap='onClickCollection' data-index='{{index}}' data-item='{{item}}'>
+      <image class="art-item-bottom-icon art-item-bottom-sc-icon" src="{{item.collectionpic}}" wx:if="{{isAnimatingCollection}}" />
+      <image animation="{{item.clickCollectionAnimation}}" class="art-item-bottom-icon art-item-bottom-sc-icon" src="{{item.collectionpic}}" bindtransitionend="onCollectionAnimationEnd" data-index='{{index}}' data-item='{{item}}' />
+
+      <!--盖一层登录的button-->
+      <button catchtap='loginCatch' data-type='1' data-index='{{index}}' data-item='{{item}}' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo' class='btn-collection-login' wx:if="{{isShowBtnCover}}"></button>
+
+    </view>
+
+    <view class='art-item-bottom-icon container-share-click' catchtap='onShareClick'>
+      <!--background-image:url(../imgs/content_btn_share.png);-->
+      <button class="art-item-bottom-icon art-item-bottom-share-icon" open-type="share" plain="true" data-index='{{index}}' data-item='{{item}}' />
+    </view>
+  </view>
+
+  <view class='art-item-pls' wx:if="{{item.hotcomment && item.hotcomment.length>0}}">
+    <view class='art-item-pls-box'>
+      <block wx:for="{{item.hotcomment}}" wx:for-item="plitem" wx:key='PLID'>
+        <view class='art-items-pls-item'>
+          <image class="art-item-pls-head" src="{{plitem.HEADURL}}"></image>
+          <text class='art-item-pls-name'>{{plitem.NICKNAME}}：</text>
+
+          <template is="imgTplBak" data="{{emojiMsg:plitem.emojiMsg}}"></template>
+
+          <!-- <text class='art-item-pls-text'>{{plitem.CONTENT}}</text> -->
+        </view>
+      </block>
+    </view>
+  </view>
+</template>

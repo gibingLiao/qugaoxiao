@@ -1,0 +1,37 @@
+<!--pages/videodetail/videodetail.wxml-->
+<import src="../template/artdetailtemplate.wxml" />
+<import src="../template/artdetailinput.wxml" />
+
+
+<!--视频区域-->
+<view class='container-video'>
+  <!--腾讯源视频-->
+  <txv-video height="{{videoHeight}}px" class='video' wx:if="{{startvideo&&artdata.atype=='3'}}" vid="{{vid}}" playerid='{{vid}}' autoplay="{{true}}" isHiddenStop="{{true}}" catchtap='onVideoClick_catch' usePoster="{{true}}" objectFit="contain" poster="{{artdata.imgurl}}"
+    bindwaiting="onVideoWaiting" bindplay="onVideoPlay" bindpause="onVideoPause">
+    <cover-view class="cover-loading-video" wx:if="{{isloadingvideo}}">加载中...</cover-view>
+  </txv-video>
+  <!--.mp4原生视频-->
+  <video style='height:{{videoHeight}}px' class='video' wx:if="{{startvideo&&artdata.atype=='1'}}" id='{{artdata.artid}}' autoplay='{{true}}' show-center-play-btn="{{false}}" src='{{artdata.attadress}}' catchtap='onVideoClick_catch' poster="{{artdata.imgurl}}"
+    bindwaiting="onVideoWaiting" bindplay="onVideoPlay" bindpause="onVideoPause">
+    <cover-view class="cover-loading-video" wx:if="{{isloadingvideo}}">加载中...</cover-view>
+  </video>
+  <image wx:if='{{!startvideo}}' class=" {{artdata.imgstyle}} " src="{{artdata.imgurl}}" mode='widthFix' catchtap='onVideoClick' />
+  <image wx:if='{{!startvideo}}' class="art-con-img-play" src="../imgs/content_btn_playvedio.png" catchtap='onVideoClick' />
+
+</view>
+
+<!-- style='margin-top:{{videoHeight}}px' -->
+<view class='container-scroll'>
+
+  <!--标题-->
+  <view class='container-title'>
+    <text class='text-title'>{{artdata.title}}</text>
+  </view>
+
+  <!--下面的标签，评论和输入-->
+  <template is="art-gongyong" data="{{artdetaildata:artdata,pldetaildata:pldata,zhanweiheight:zhanweiheight,clickLikeAnimation:clickLikeAnimation,isAnimatingLike:isAnimatingLike,isAnimatingPlLike:isAnimatingPlLike,isShowBtnCover:isShowBtnCover}}" />
+
+</view>
+
+<!--输入框-->
+<template is="plinput" data="{{plcount:plcount,collctionpic:artdata.collctionpic,clickCollectionAnimation:clickCollectionAnimation,isAnimatingCollection:isAnimatingCollection,isShowBtnCover:isShowBtnCover}}" />

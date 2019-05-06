@@ -1,0 +1,76 @@
+/* pages/videodetail/videodetail.wxss */
+@import "../template/artdetailtemplate.wxss";
+
+/*视频区域容器*/
+
+.container-video {
+  background: black;
+  width: 100%;
+  /* position: fixed; */
+  position: relative;
+  top: 0;
+  left: 0;
+}
+
+.video {
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+}
+
+/*视频播放键*/
+
+.art-con-img-play {
+  width: 88rpx;
+  height: 88rpx;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  top: 0;
+  margin: auto;
+}
+
+/*静态图片样式*/
+
+.art-con-img {
+  width: 100%;
+  display: block;
+  margin: 0 auto;
+}
+
+.art-con-img-2 {
+  width: 60%;
+  display: block;
+  margin: 0 auto;
+}
+
+/*scrollview样式*/
+
+.container-scroll {
+  width: 100%;
+}
+
+/*标题容器*/
+
+.container-title {
+  margin-top: 50rpx;
+  margin-left: 26rpx;
+  margin-right: 26rpx;
+}
+
+/*标题文字*/
+
+.text-title {
+  color: #343434;
+  font-size: 36rpx;
+}
+
+.cover-loading-video{
+  position: relative;
+  top: 20rpx;
+  left: 20rpx;
+  color: white;
+  font-size: 30rpx;
+  text-align: left;
+}

@@ -1,0 +1,101 @@
+<import src="../index/itemtop.wxml" />
+<import src="../index/itembottom.wxml" />
+
+<!--内容列表-->
+<view style='padding-top:0rpx' class='art-container' scroll-y lower-threshold="100" bindscrolltolower="LoadNextPage" bindscroll="ScrollViewDidScroll">
+
+  <block wx:for="{{CurListData.items}}" wx:for-item="item" wx:key="id">
+
+    <!--视频类-->
+    <view class='art-item art-video' bindtap="GoArtDetail" data-index='{{index}}' wx:if="{{item.atype=='1'||item.atype=='3'}}">
+      <template is="art-top" data="{{mark:item.mark}}" />
+      <view class='art-item-con'>
+        <text class='art-item-con-title' wx:if="{{item.title&&item.title.length>0}}">{{item.title}}</text>
+        <view class='art-item-con-img-box'>
+          <!--腾讯源视频-->
+          <txv-video height="{{videoHeight}}px" class='art-item-con-img' wx:if="{{index==videoIndex&&item.atype=='3'}}" vid="{{vid}}" playerid='video{{index}}' show-center-play-btn='{{false}}' autoplay="{{true}}" isHiddenStop="{{true}}" catchtap='onVideoClick_catch'
+            usePoster="{{true}}" objectFit="contain" data-index='{{index}}' bindwaiting="onVideoWaiting" bindplay="onVideoPlay" bindpause="onVideoPause" poster="{{item.imgurl}}">
+            <!-- <cover-image class="art-item-con-loading-video" src='../imgs/loadgif.gif' wx:if="{{item.isloadingvideo}}" /> -->
+          </txv-video>
+
+          <!--.mp4原生视频-->
+          <video style='height:{{videoHeight}}px' class='art-item-con-img' wx:if="{{index==videoIndex&&item.atype=='1'}}" id='video{{index}}' autoplay='{{true}}' show-center-play-btn="{{false}}" src='{{item.attadress}}' catchtap='onVideoClick_catch' data-index='{{index}}'
+            bindwaiting="onVideoWaiting" bindplay="onVideoPlay" bindpause="onVideoPause" poster="{{item.imgurl}}">
+            <!-- <cover-image class="art-item-con-loading-video" src='../imgs/loadgif.gif' wx:if="{{item.isloadingvideo}}" /> -->
+          </video>
+
+          <image wx:if='{{index!=videoIndex}}' class="{{item.imgstyle}}" src="{{item.imgurl}}" style="height:{{item.imgVideoHeight}}px" catchtap='onVideoClick' data-index='{{index}}' />
+          <image wx:if='{{index!=videoIndex}}' class="art-item-con-img-gif" src="../imgs/content_btn_playvedio.png" catchtap='onVideoClick' data-index='{{index}}' />
+        </view>
+      </view>
+      <template is="art-bottom" data="{{item:item,index:index,isAnimatingLike:isAnimatingLike,isAnimatingCollection:isAnimatingCollection}}" />
+    </view>
+
+    <!--图片类-->
+    <view class='art-item art-image' bindtap="GoArtDetail" data-index='{{index}}' wx:if="{{item.atype=='2'||item.atype=='4'||item.atype=='5'}}">
+      <template is="art-top" data="{{mark:item.mark}}" />
+      <view class='art-item-con'>
+        <text class='art-item-con-title' wx:if="{{item.title&&item.title.length>0}}">{{item.title}}</text>
+        <view class='art-item-con-img-box'>
+          <image class="{{item.imgstyle}}" style="display:{{item.showaddress?'none':'block'}};height:{{item.imgVideoHeight}}px" src="{{item.imgurl}}" catchtap='onPicClick' data-index='{{index}}' />
+
+          <image class="{{item.imgstyle}}" style="display:{{item.showaddress?'block':'none'}};height:{{item.imgVideoHeight}}px" src="{{item.showimg}}" wx:if="{{item.showimg}}" catchtap='onPicClick' data-index='{{index}}' bindload="gifImageLoad" />
+
+          <!--正在加载gif的loading-->
+          <image class="art-item-con-img-gif" src='../imgs/loadgif.gif' wx:if="{{item.isloadinggif}}" />
+
+
+          <view class='art-item-con-img-mark' wx:if="{{item.zhaiyao&&item.zhaiyao.length>0&&item.zhaiyao=='查看全文'}}">
+            <text class='art-item-con-img-mark-text'>{{item.zhaiyao}}</text>
+            <text class='art-item-con-img-mark-text art-item-con-img-mark-text-seeall' wx:if="{{item.zhaiyao_seeall.length>0}}">{{item.zhaiyao_seeall}}</text>
+          </view>
+          <view class='art-item-con-img-mark art-item-con-img-mark-left' wx:if="{{item.zhaiyao&&item.zhaiyao.length>0&&item.zhaiyao!='查看全文'}}">
+            <text class='art-item-con-img-mark-text'>{{item.zhaiyao}}</text>
+            <text class='art-item-con-img-mark-text art-item-con-img-mark-text-seeall' wx:if="{{item.zhaiyao_seeall.length>0}}">{{item.zhaiyao_seeall}}</text>
+          </view>
+          <image style="display:{{item.showimg?'none':'block'}};" class="art-item-con-img-gif" catchtap='onPicClick' data-index='{{index}}' src="../imgs/content_btn_playgif.png" wx:if="{{item.atype=='4'}}"></image>
+        </view>
+      </view>
+      <template is="art-bottom" data="{{item:item,index:index,isAnimatingLike:isAnimatingLike,isAnimatingCollection:isAnimatingCollection}}" />
+    </view>
+
+    <!--段子类-->
+    <view class='art-item art-text' bindtap="GoArtDetail" data-index='{{index}}' wx:if="{{item.atype=='0'}}">
+      <template is="art-top" data="{{mark:item.mark}}" />
+      <view class='art-item-con'>
+        <text catchtap='onItemTagClick' data-tagid='{{CurListData.items[index].tagid}}' class='art-item-con-tag' wx:if="{{item.tag&&item.tag.length>0}}">{{item.tag}} </text>
+        <text class='art-item-con-text'>{{item.zhaiyao}}</text>
+      </view>
+      <template is="art-bottom" data="{{item:item,index:index,isAnimatingLike:isAnimatingLike,isAnimatingCollection:isAnimatingCollection}}" />
+    </view>
+
+  </block>
+
+</view>
+
+<!--我的赞列表为空-->
+<view class='container-empty-zan' wx:if='{{showemptyzan}}'>
+  <view class='container-empty-zan-1'>
+    <image class='image-empty-zan' src="../imgs/empty_img_nolike.png"></image>
+    <text class='text-empty-zan-1'>色即是空 空即是色</text>
+    <text class='text-empty-zan-2'> 空空的OO... 香蕉都没有一根！</text>
+  </view>
+</view>
+
+<!--我的收藏列表为空-->
+<view class='container-empty-zan' wx:if='{{showemptycollection}}'>
+  <view class='container-empty-zan-1'>
+    <image class='image-empty-collection' src="../imgs/empty_img_nocollect.png"></image>
+    <text class='text-empty-zan-1'>没有收藏癖的你</text>
+    <text class='text-empty-zan-2'> 要去哪里寻找回忆 ？！</text>
+  </view>
+</view>
+
+<!--我的评论列表为空-->
+<view class='container-empty-zan' wx:if='{{showemptycomments}}'>
+  <view class='container-empty-zan-1'>
+    <image class='image-empty-collection' src="../imgs/empty_img_nopl.png"></image>
+    <text class='text-empty-zan-1'>明明充满了表达欲</text>
+    <text class='text-empty-zan-2'>却没发表过任何评论...</text>
+  </view>
+</view>

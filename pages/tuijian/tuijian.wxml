@@ -1,0 +1,6 @@
+<!--pages/tuijian/tuijian.wxml-->
+<view class='container-tuijian'>
+  <image style='height:{{imgheight}}px' class='image-tuijian' src='../imgs/tjbg.png'></image>
+
+  <button open-type="share" class='btn-tuijian'>推荐给朋友</button>
+</view>

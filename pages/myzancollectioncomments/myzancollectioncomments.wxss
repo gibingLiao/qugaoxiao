@@ -1,0 +1,52 @@
+/* pages/myzancollectioncomments/myzancollectioncomments.wxss */
+@import "../index/index.wxss";
+@import "../../utils/face.wxss";
+
+/* <view class=''>
+    <image class=''></image>
+    <text class='text-empty-zan-1'></text>
+     <text class='text-empty-zan-2'></text>
+  </view>*/
+
+/*赞为空容器*/
+
+.container-empty-zan {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  align-items: center;
+  vertical-align: middle;
+  justify-content:center;
+}
+.container-empty-zan-1 {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  vertical-align: middle;
+  margin-top: -250rpx;
+}
+
+/*数据空 图片*/
+
+.image-empty-zan {
+  height: 195rpx;
+  width: 300rpx;
+}
+.image-empty-collection{
+   height: 229rpx;
+  width: 300rpx;
+}
+
+/*数据空 文字*/
+
+.text-empty-zan-1 {
+  color: #959595;
+  font-size: 26rpx;
+  margin-top: 70rpx;
+}
+
+.text-empty-zan-2 {
+   color: #959595;
+  font-size: 26rpx;
+  margin-top: 20rpx;
+}

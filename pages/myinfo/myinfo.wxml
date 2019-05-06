@@ -1,0 +1,70 @@
+<!--pages/myinfo/myinfo.wxml-->
+
+<view class='view-whole-container'>
+
+  <!--用户id，name，头像-->
+  <view class='view-container-user'>
+    <text class='text-username'>{{userinfo.nickname}}</text>
+
+    <view class='container-login-id'>
+      <text class='text-userid'>{{userinfo.userid}}</text>
+      <button class='btn-login' data-type='0' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo' wx:if="{{userinfo.nickname=='未登录'}}">登录</button>
+    </view>
+
+    <image class='image-headimg' src='{{userinfo.headurl}}' />
+  </view>
+
+
+
+  <!--我的赞-->
+  <view class='container-collection' catchtap='onMyZanCollectionCommentsClick' data-type='1'>
+    <image class='image-collection' src='../imgs/mine_icon_z.png' />
+    <text class='text-collection'>我的赞</text>
+    <text class='text-collection-count'>{{userinfo.zancount}}</text>
+    <image class='image-arrow' src='../imgs/icon_enter.png' />
+
+    <button catchtap='loginCatch' class='btn-zan-collection-comments' data-type='1' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo' wx:if="{{isShowBtnCover}}"></button>
+  </view>
+  <view class='view-fengexian' />
+
+
+  <!--我的收藏-->
+  <view class='container-collection' catchtap='onMyZanCollectionCommentsClick' data-type='2'>
+    <image class='image-collection' src='../imgs/mine_icon_sc.png' />
+    <text class='text-collection'>我的收藏</text>
+    <text class='text-collection-count'>{{userinfo.collectioncount}}</text>
+    <image class='image-arrow' src='../imgs/icon_enter.png' />
+
+    <button catchtap='loginCatch' class='btn-zan-collection-comments' data-type='2' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo' wx:if="{{isShowBtnCover}}"></button>
+  </view>
+  <view class='view-fengexian' />
+
+
+  <!--我的评论-->
+  <view class='container-collection' catchtap='onMyZanCollectionCommentsClick' data-type='3'>
+    <image class='image-collection' src='../imgs/mine_icon_pl.png' />
+    <text class='text-collection'>我的评论</text>
+    <text class='text-collection-count'>{{userinfo.commentscount}}</text>
+    <image class='image-arrow' src='../imgs/icon_enter.png' />
+    <button catchtap='loginCatch' class='btn-zan-collection-comments' data-type='3' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo' wx:if="{{isShowBtnCover}}"></button>
+  </view>
+  <view class='view-fengexian' />
+
+
+  <!--推荐-->
+  <view class='container-collection' catchtap='onTuijianClick'>
+    <image class='image-collection' src='../imgs/mine_icon_tj.png' />
+    <text class='text-collection'>推荐</text>
+    <image class='image-arrow' src='../imgs/icon_enter.png' />
+  </view>
+  <view class='view-fengexian' />
+
+  <!--意见反馈-->
+  <view class='container-collection' catchtap='onSuggestionClick'>
+    <image class='image-collection' src='../imgs/mine_icon_yj.png' />
+    <text class='text-collection'>意见建议</text>
+    <image class='image-arrow' src='../imgs/icon_enter.png' />
+  </view>
+  <view class='view-fengexian' />
+
+</view>

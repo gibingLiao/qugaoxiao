@@ -1,0 +1,72 @@
+<import src="../../utils/tpl.wxml" />
+<template name="art-gongyong">
+
+  <!--artdetaildata：文章数据  pldetaildata：评论数据-->
+  <!--下面的标签，评论和输入-->
+  <view class='container-tags' wx:if="{{artdetaildata.tags&&artdetaildata.tags.length>0}}">
+    <block wx:for="{{artdetaildata.tags}}" wx:for-item="item" wx:for-index="idx" wx:key="TAGID">
+      <text catchtap='onHotTagClick' data-tagid='{{item.TAGID}}' class='text-tags-style' style='color:#51adf5' wx:if="{{idx==0}}">{{item.TAG}}</text>
+      <text catchtap='onHotTagClick' data-tagid='{{item.TAGID}}' class='text-tags-style' style='color:#9e9e9e' wx:else>{{item.TAG}}</text>
+    </block>
+  </view>
+
+  <!--点赞-->
+  <view class='container-like' bindtap='onClickLike'>
+    <image class='img-like' src="{{artdetaildata.likepic}}" wx:if="{{isAnimatingLike}}" />
+    <image class='img-like' src="{{artdetaildata.likepic}}" animation="{{clickLikeAnimation}}" bindtransitionend="onLikeAnimationEnd" />
+    <view class='view-like-count'>{{artdetaildata.zancnt}}</view>
+    <!--覆盖登录button-->
+    <button wx:if="{{isShowBtnCover}}" class='btn-login-zan-conetnt' catchtap='loginCatch' data-type='0' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo'></button>
+
+  </view>
+
+  <!--没有评论时候的底部空白高度-->
+  <view style='height:200rpx' wx:if="{{artdetaildata.plcnt&&artdetaildata.plcnt<=0}}"></view>
+
+  <!--有评论的时候的评论展示-->
+  <view class='container-comments-count' wx:else>
+    <!--分割线-->
+    <view class='fengexian' />
+    <!--评论数-->
+    <view class='container-plcounts'>
+      <text class='plcounts'>评论 </text>
+      <text class='plcounts'>{{artdetaildata.plcnt}}</text>
+    </view>
+    <!--分割线-->
+    <view class='plfengexian' />
+
+    <!--用户评论-->
+    <block wx:for="{{pldetaildata.items}}" wx:for-item="item" wx:for-index="idx" wx:key="id">
+      <view class='container-pl'>
+        <!--头像-->
+        <image class='pl-head' src='{{item.HEADURL}}' />
+        <!--昵称，评论内容-->
+        <view class='container-pl-nickname-content'>
+          <text class='nickname'>{{item.NICKNAME}}\n</text>
+
+          <template is="imgTplBak" data="{{emojiMsg:item.emojiMsg}}"></template>
+
+          <!-- <text class='plcontent'>{{item.CONTENT}}</text> -->
+        </view>
+        <!--评论点赞-->
+        <view class='container-pldianzan' catchtap='onClickPlLike' data-index='{{idx}}' data-item='{{item}}'>
+          <text class='text-plzan' wx:if="{{item.ZANCNT>0}}">{{item.ZANCNT}}</text>
+          <image class='img-plzan' src='{{item.likepic}}' wx:if="{{isAnimatingPlLike}}" />
+          <image class='img-plzan' animation="{{item.clickLikeAnimation}}" src='{{item.likepic}}' bindtransitionend="onPlLikeAnimationEnd" data-index='{{idx}}' data-item='{{item}}'></image>
+          <!--覆盖登录button-->
+          <button wx:if="{{isShowBtnCover}}" class='btn-login-zan-pl' catchtap='loginCatch' data-type='1' data-index='{{idx}}' data-item='{{item}}' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo'></button>
+        </view>
+        <!--分隔线-->
+        <view class='bottom-fengexian' wx:if="{{(idx+1)!=pldetaildata.items.length}}"></view>
+        <view class='pl-clear-flex'></view>
+      </view>
+    </block>
+  </view>
+
+
+
+  <!--输入框高度-->
+  <view style='height:{{zhanweiheight}}rpx'>
+  </view>
+
+</template>

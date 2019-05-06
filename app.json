@@ -1,0 +1,30 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/welcome/welcome",
+    "pages/logs/logs",
+    "pages/login/login",
+    "pages/detail/detail",
+    "pages/duanzidetail/duanzidetail",
+    "pages/picdetail/picdetail",
+    "pages/tuwendetail/tuwendetail",
+    "pages/videodetail/videodetail",
+    "pages/myinfo/myinfo",
+    "pages/myzancollectioncomments/myzancollectioncomments",
+    "pages/tuijian/tuijian",
+    "pages/suggestion/suggestion"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#FFFFFF",
+    "navigationBarTitleText": "去搞笑",
+    "navigationBarTextStyle": "black"
+  },
+  "plugins": {
+    "tencentvideo": {
+      "version": "1.3.0",
+      "provider": "wxa75efa648b60994b"
+    }
+  },
+  "sitemapLocation": "sitemap.json"
+}

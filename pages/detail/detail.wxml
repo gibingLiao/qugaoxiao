@@ -1,0 +1,16 @@
+<!--pages/detail/detail.wxml-->
+<import src="../../utils/wxParse/wxParse.wxml"/>
+
+<scroll-view scroll-y class='dk-show' style='height:{{dkheight}}px;'>
+  <template is="wxParse" data="{{wxParseData:dkcontent.nodes}}"/>
+
+
+    <txv-video vid="{{vid}}" wx:if="{{vid}}" playerid="{{vid}}" autoplay="{{false}}" isHiddenStop="{{true}}" width="70%" height="auto"></txv-video>
+  
+  <video id="myVideo" src="{{vsrc}}" controls autoplay="{{false}}"></video>
+  <video id="myVideo" src="{{vsrc}}" controls autoplay="{{false}}"></video>
+  <video id="myVideo" src="{{vsrc}}" controls autoplay="{{false}}"></video>
+  <video id="myVideo" src="{{vsrc}}" controls autoplay="{{false}}"></video>
+
+
+</scroll-view>

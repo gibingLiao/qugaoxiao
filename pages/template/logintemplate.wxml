@@ -1,0 +1,4 @@
+<!--登录的层-->
+<view class='container-login'>
+  <button open-type="getUserInfo" bindgetuserinfo="getUserInfoCallBack">登录</button>
+</view>

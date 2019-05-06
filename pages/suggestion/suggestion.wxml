@@ -1,0 +1,16 @@
+<!--pages/suggestion/suggestion.wxml-->
+
+<view class='container-suggestion'>
+
+  <text class='text-des-1'>请留下你对去搞笑的意见或改善建议,  我们将不断进步，为你做得更好！</text>
+
+  <textarea bindinput="bindinput" class='input-suggestion' placeholder="点此输入意见建议" placeholder-class="place-holder"></textarea>
+
+  <text class='text-des-2'>去搞笑内容大部分来源于网络，如有牵涉到版权或抄袭等问题，也请反馈给我们，我们会及时处理并删除！</text>
+
+  <text catchtap='onUploadClick' class='text-upload'>提交</text>
+
+  <toast id='toast'>
+  </toast>
+
+</view>

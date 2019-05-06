@@ -1,0 +1,33 @@
+/* pages/tuijian/tuijian.wxss */
+
+.container-tuijian {
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+}
+
+.image-tuijian {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+.btn-tuijian {
+  background: linear-gradient(to right, #f79, #fd4f66);
+  position: absolute;
+  left: 50%;
+  bottom: 270rpx;
+  height: 100rpx;
+  width: 488rpx;
+  text-align: center;
+  line-height: 100rpx;
+  border-radius: 50rpx;
+  margin-left: -244rpx;
+  color: white;
+  font-size: 32rpx;
+}
+
+.btn-tuijian:after {
+  border: none;
+}

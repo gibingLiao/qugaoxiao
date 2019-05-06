@@ -1,0 +1,142 @@
+<!--index.wxml-->
+<import src="itemtop.wxml" />
+<import src="itembottom.wxml" />
+
+
+<!--顶部头像，主题-->
+<view class='{{usertopstyle}}'>
+  <image class="image-head-img-user" src="{{headurl}}" mode="cover" bindtap="GoMyInfo" />
+  <image catchtap='onZhuTiClick' class="image-head-img-zhuti" src="{{zhutiimg}}" mode="aspectFill" />
+  <text class='text-head-toutiaozhuan' catchtap='onTuijianClick'>推荐</text>
+  <image class="image-head-img-toutiaozhuan" src="../imgs/top_icon_tj.png" mode="cover" catchtap='onTuijianClick' />
+</view>
+
+<!--顶部分类导航-->
+<view class='{{navtopstyle}}'>
+  <text style='color:{{tuijiancolor}};font-weight:{{tuijianFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='0'>推荐</text>
+  <text style='color:{{tuwencolor}};font-weight:{{tuwenFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='1'>图文</text>
+  <text style='color:{{duanzicolor}};font-weight:{{duanziFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='2'>段子</text>
+  <text style='color:{{dongtucolor}};font-weight:{{dongtuFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='3'>动图</text>
+  <text style='color:{{shipincolor}};font-weight:{{shipinFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='4'>视频</text>
+  <text style='color:{{repingcolor}};font-weight:{{repingFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='5'>热评</text>
+  <text style='color:{{biaoqiancolor}};font-weight:{{biaoqianFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='6'>标签</text>
+  <view style='margin-left:{{indicatorLeft}}px' class='nav-menu-indicator' animation="{{indicatorAnimation}}" bindtransitionend="onIndicatorAnimationEnd" animation-fill-mode="forwards" />
+  <image class='nav-menu-hot' src='../imgs/content_icon_hot.png'></image>
+</view>
+
+
+
+<!--选中标签的水平展示-->
+<view class='hot-tag-horrizontal' wx:if="{{selectHotTag&&isShowHorizontalTag}}">
+  <view catchtap='onHorizontalTagClick'>
+    <text class='text-hot-tag-horrizontal'>{{selectHotTag}}</text>
+    <image class='image-hot-tag-horrizontal-close' src='../imgs/content_icon_close.png' />
+  </view>
+</view>
+
+
+
+<!--内容列表-->
+<!--style='padding-top:{{contentPaddingTop}}rpx'-->
+<view class='art-container' scroll-y lower-threshold="100" bindscrolltolower="LoadNextPage" bindscroll="ScrollViewDidScroll">
+
+  <view style='height:{{contentPaddingTop}}rpx' class='container-songkaishuaxin'>
+    <view wx:if="{{!isShowHotTags}}" class='text-songkaihuaxin'>下拉刷新...</view>
+  </view>
+
+  <block wx:for="{{CurListData.items}}" wx:for-item="item" wx:key="id">
+
+    <!--视频类-->
+    <view class='art-item art-video' bindtap="GoArtDetail" data-index='{{index}}' wx:if="{{item.atype=='1'||item.atype=='3'}}">
+      <template is="art-top" data="{{mark:item.mark}}" />
+      <view class='art-item-con'>
+        <text class='art-item-con-title' wx:if="{{item.title&&item.title.length>0}}">{{item.title}}</text>
+        <view class='art-item-con-img-box'>
+          <!--腾讯源视频-->
+          <txv-video height="{{videoHeight}}px" class='art-item-con-img' wx:if="{{index==videoIndex&&item.atype=='3'}}" vid="{{vid}}" playerid='video{{index}}' show-center-play-btn='{{false}}' autoplay="{{true}}" isHiddenStop="{{true}}" catchtap='onVideoClick_catch'
+            usePoster="{{true}}" objectFit="contain" data-index='{{index}}' bindwaiting="onVideoWaiting" bindplay="onVideoPlay" bindpause="onVideoPause" poster="{{item.imgurl}}">
+            <cover-view class="art-item-con-loading-video" wx:if="{{item.isloadingvideo}}">加载中...</cover-view>
+          </txv-video>
+
+          <!--.mp4原生视频-->
+          <video style='height:{{videoHeight}}px' class='art-item-con-img' wx:if="{{index==videoIndex&&item.atype=='1'}}" id='video{{index}}' autoplay='{{true}}' show-center-play-btn="{{false}}" src='{{item.attadress}}' catchtap='onVideoClick_catch' data-index='{{index}}'
+            bindwaiting="onVideoWaiting" bindplay="onVideoPlay" bindpause="onVideoPause" poster="{{item.imgurl}}">
+            <!-- <cover-image class="art-item-con-loading-video" src='../imgs/loadgif.gif' wx:if="{{item.isloadingvideo}}" /> -->
+            <cover-view class="art-item-con-loading-video" wx:if="{{item.isloadingvideo}}">加载中...</cover-view>
+          </video>
+
+          <image wx:if='{{index!=videoIndex}}' class="{{item.imgstyle}}" src="{{item.imgurl}}" style="height:{{item.imgVideoHeight}}px" catchtap='onVideoClick' data-index='{{index}}' />
+          <image wx:if='{{index!=videoIndex}}' class="art-item-con-img-gif" src="../imgs/content_btn_playvedio.png" catchtap='onVideoClick' data-index='{{index}}' />
+        </view>
+      </view>
+      <template is="art-bottom" data="{{item:item,index:index,isAnimatingLike:isAnimatingLike,isAnimatingCollection:isAnimatingCollection,isShowBtnCover:isShowBtnCover}}" />
+    </view>
+
+    <!--图片类-->
+    <view class='art-item art-image' bindtap="GoArtDetail" data-index='{{index}}' wx:if="{{item.atype=='2'||item.atype=='4'||item.atype=='5'}}">
+      <template is="art-top" data="{{mark:item.mark}}" />
+      <view class='art-item-con'>
+        <text class='art-item-con-title' wx:if="{{item.title&&item.title.length>0}}">{{item.title}}</text>
+        <view class='art-item-con-img-box'>
+          <image class="{{item.imgstyle}}" style="display:{{item.showaddress?'none':'block'}};height:{{item.imgVideoHeight}}px" src="{{item.imgurl}}" catchtap='onPicClick' data-index='{{index}}' />
+
+          <image class="{{item.imgstyle}}" style="display:{{item.showaddress?'block':'none'}};height:{{item.imgVideoHeight}}px" src="{{item.showimg}}" wx:if="{{item.showimg}}" catchtap='onPicClick' data-index='{{index}}' bindload="gifImageLoad" />
+
+          <!--正在加载gif的loading-->
+          <image class="art-item-con-img-gif" src='../imgs/loadgif.gif' wx:if="{{item.isloadinggif}}" />
+
+
+          <!--覆盖一层展示gif的层，加载完成展示，正在加载不展示-->
+          <!--<image  class="art-item-con-img-gif-show {{item.imgstyle}}" style="display:{{item.showaddress?'block':'none'}};z-index:1;position: absolute;"  src="{{item.showimg}}" mode='widthFix' catchtap='onPicClick' data-index='{{index}}' bindload="gifImageLoad"/>-->
+
+          <view class='art-item-con-img-mark' wx:if="{{item.zhaiyao&&item.zhaiyao.length>0&&item.zhaiyao=='查看全文'}}">
+            <text class='art-item-con-img-mark-text'>{{item.zhaiyao}}</text>
+            <text class='art-item-con-img-mark-text art-item-con-img-mark-text-seeall' wx:if="{{item.zhaiyao_seeall.length>0}}">{{item.zhaiyao_seeall}}</text>
+          </view>
+          <view class='art-item-con-img-mark art-item-con-img-mark-left' wx:if="{{item.zhaiyao&&item.zhaiyao.length>0&&item.zhaiyao!='查看全文'}}">
+            <text class='art-item-con-img-mark-text'>{{item.zhaiyao}}</text>
+            <text class='art-item-con-img-mark-text art-item-con-img-mark-text-seeall' wx:if="{{item.zhaiyao_seeall.length>0}}">{{item.zhaiyao_seeall}}</text>
+          </view>
+          <image style="display:{{item.showimg?'none':'block'}};" class="art-item-con-img-gif" catchtap='onPicClick' data-index='{{index}}' src="../imgs/content_btn_playgif.png" wx:if="{{item.atype=='4'}}"></image>
+        </view>
+      </view>
+      <template is="art-bottom" data="{{item:item,index:index,isAnimatingLike:isAnimatingLike,isAnimatingCollection:isAnimatingCollection,isShowBtnCover:isShowBtnCover}}" />
+    </view>
+
+    <!--段子类-->
+    <view class='art-item art-text' bindtap="GoArtDetail" data-index='{{index}}' wx:if="{{item.atype=='0'}}">
+      <template is="art-top" data="{{mark:item.mark}}" />
+      <view class='art-item-con'>
+        <text catchtap='onItemTagClick' data-tagid='{{CurListData.items[index].tagid}}' class='art-item-con-tag' wx:if="{{item.tag&&item.tag.length>0}}">{{item.tag}} </text>
+        <text class='art-item-con-text'>{{item.zhaiyao}}</text>
+      </view>
+      <template is="art-bottom" data="{{item:item,index:index,isAnimatingLike:isAnimatingLike,isAnimatingCollection:isAnimatingCollection,isShowBtnCover:isShowBtnCover}}" />
+    </view>
+
+  </block>
+
+</view>
+
+<!--热点标签层-->
+<view class='container-biaoqian' wx:if="{{isShowHotTags&&itemMaleHot.length>0}}">
+  <text class='text-malehot'>男生热点</text>
+
+  <block wx:for="{{itemMaleHot}}" wx:for-item="item" wx:key="TAGID">
+    <text style='color:{{item.showtextcolor}};background:{{item.showbg}}' class='text-malehot-tag' catchtap='onSelectHotTagClick' data-type='0' data-index='{{index}}'>{{item.TAG}}</text>
+  </block>
+
+  <text class='text-femalehot'>女生热点</text>
+
+  <block wx:for="{{itemFemaleHot}}" wx:for-item="item" wx:key="TAGID">
+    <text style='color:{{item.showtextcolor}};background:{{item.showbg}}' class='text-malehot-tag' catchtap='onSelectHotTagClick' data-type='1' data-index='{{index}}'>{{item.TAG}}</text>
+  </block>
+
+</view>
+
+
+
+<!--倒计时-->
+<!-- <view class="timer-box">
+  <image class="timer-bg" src='../imgs/content_icon_moneyloading.png'></image>
+  <canvas class="timer" canvas-id="timerCanvas" id="timerCanvas"></canvas>
+</view> -->

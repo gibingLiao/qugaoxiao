@@ -1,0 +1,75 @@
+/* pages/suggestion/suggestion.wxss */
+
+/*整体样容器*/
+
+.container-suggestion {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/*顶部描述*/
+
+.text-des-1 {
+  display: inline-block;
+  margin-top: 70rpx;
+  color: #7c7c7c;
+  font-size: 30rpx;
+  margin-left: 60rpx;
+  margin-right: 35rpx;
+  line-height: 48rpx;
+  margin-bottom: 45rpx;
+}
+
+/*输入框样式*/
+
+.input-suggestion {
+  height: 320rpx;
+  width: calc(100vw - 120rpx);
+  margin-left: 60rpx;
+  border-top: 1rpx;
+  border-top-color: #eaeaea;
+  border-bottom: 1rpx;
+  border-style: solid;
+  border-bottom-color: #eaeaea;
+  border-left: 0;
+  border-right: 0;
+  padding: 27rpx 0;
+  color: #2d2d2d;
+  font-size: 30rpx;
+  line-height: 46rpx;
+}
+
+.place-holder{
+ color:#dfdfdf;
+ font-size:30rpx;
+}
+
+/*底部描述*/
+
+.text-des-2 {
+  display: inline-block;
+  margin-top: 30rpx;
+  color: #b7b7b7;
+  font-size: 26rpx;
+  margin-left: 60rpx;
+  margin-right: 60rpx;
+  line-height: 38rpx;
+}
+
+/*提交按钮*/
+
+.text-upload {
+  display: inline-block;
+  margin-top: 75rpx;
+  color: white;
+  font-size: 36rpx;
+  margin-left: 60rpx;
+  margin-right: 60rpx;
+  height: 94rpx;
+  line-height: 94rpx;
+  text-align: center;
+  width: calc(100vw - 120rpx);
+  background: linear-gradient(to right, #f79, #fd4f66);
+  border-radius: 47rpx;
+}

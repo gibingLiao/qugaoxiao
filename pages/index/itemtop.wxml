@@ -1,0 +1,14 @@
+<template name="art-top">
+  <view class='art-item-top' wx:if="{{mark=='1'}}">
+        <image class="art-item-top-hot-icon" src="../imgs/content_icon_hot2.png"></image>
+        <text class='art-item-top-text'>推荐</text>
+      </view>
+      <view class='art-item-top' wx:if="{{mark=='8'}}">
+        <image class="art-item-top-hot-icon" src="../imgs/content_icon_hot1.png"></image>
+        <text class='art-item-top-text'>神段子</text>
+      </view>
+      <view class='art-item-top' wx:if="{{mark=='9'}}">
+        <image class="art-item-top-hot-icon" src="../imgs/content_icon_hot4.png"></image>
+        <text class='art-item-top-text'>超火</text>
+      </view>
+</template>

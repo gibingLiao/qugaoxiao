@@ -1,0 +1,36 @@
+<import src="../template/artdetailtemplate.wxml" />
+<import src="../template/artdetailinput.wxml" />
+
+
+<!--pages/picdetail/picdetail.wxml-->
+<scroll-view class='container-scroll' scroll-y='true' lower-threshold="100" bindscrolltolower="LoadNextPage" bindscroll="ScrollViewDidScroll">
+  <!--标题-->
+  <view class='container-title' wx:if="{{artdata.title}}">
+    <text class='text-title'>{{artdata.title}}</text>
+  </view>
+
+  <!--图片-->
+  <view class='container-pic'>
+    <image class='{{imageStyle}}' style="display:{{artdata.showaddress?'none':'block'}};" src='{{artdata.imgurl}}' mode='widthFix' catchtap='onPicClick' />
+
+    <image class="{{imageStyle}}" wx:if="{{artdata.showimg}}" style="display:{{artdata.showaddress?'block':'none'}};" src="{{artdata.showimg}}" mode='widthFix' catchtap='onPicClick' bindload="gifImageLoad" />
+
+    <!--正在加载gif的loading-->
+    <image class="play-gif-style" src='../imgs/loadgif.gif' wx:if="{{artdata.isloadinggif}}" />
+
+    <image catchtap='onPicClick' class='play-gif-style' style="display:{{artdata.showimg?'none':'block'}};" src="../imgs/content_btn_playgif.png" wx:if="{{artdata.atype=='4'}}" />
+
+
+  </view>
+
+  <!--下面的标签，评论和输入-->
+  <template is="art-gongyong" data="{{artdetaildata:artdata,pldetaildata:pldata,zhanweiheight:zhanweiheight,clickLikeAnimation:clickLikeAnimation,isAnimatingLike:isAnimatingLike,isAnimatingPlLike:isAnimatingPlLike,isShowBtnCover:isShowBtnCover}}" />
+
+</scroll-view>
+
+<!--输入框-->
+<template is="plinput" data="{{isshowenmoji:isshowenmoji,enmojis:enmojis,enmojipages:enmojipages,plcount:plcount,collctionpic:artdata.collctionpic,clickCollectionAnimation:clickCollectionAnimation,isAnimatingCollection:isAnimatingCollection,isShowBtnCover:isShowBtnCover,isshowkeyboard:isshowkeyboard,keyboardheight:keyboardheight,inputFocus:inputFocus,emojiH:emojiH,emojiW:emojiW,inputvalue:inputvalue}}"
+/>
+
+<toast id='toast'>
+</toast>
