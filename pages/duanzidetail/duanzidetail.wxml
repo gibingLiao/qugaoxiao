@@ -2,7 +2,7 @@
 <import src="../template/artdetailinput.wxml" />
 
 <!--pages/picdetail/picdetail.wxml-->
-<scroll-view class='container-scroll' scroll-y='true' lower-threshold="100" bindscrolltolower="LoadNextPage" bindscroll="ScrollViewDidScroll">
+<view class='container-scroll'>
 
   <view class='container-zhaiyao'>
     <text class='text-zhaiyao'>{{artdata.zhaiyao}}</text>
@@ -10,7 +10,16 @@
   <!--下面的标签，评论和输入-->
   <template is="art-gongyong" data="{{artdetaildata:artdata,pldetaildata:pldata,clickLikeAnimation:clickLikeAnimation,isAnimatingLike:isAnimatingLike,isAnimatingPlLike:isAnimatingPlLike,zhanweiheight:zhanweiheight,isShowBtnCover:isShowBtnCover}}" />
 
-</scroll-view>
+</view>
 
 <!--输入框-->
-<template is="plinput" data="{{plcount:plcount,collctionpic:artdata.collctionpic,clickCollectionAnimation:clickCollectionAnimation,isAnimatingCollection:isAnimatingCollection,isShowBtnCover:isShowBtnCover}}"/>
+<template is="plinput" data="{{isShowBtnCover:isShowBtnCover,isshowkeyboard:isshowkeyboard,keyboardheight:keyboardheight,inputFocus:inputFocus,emojiH:emojiH,emojiW:emojiW,inputvalue:inputvalue,isshowenmoji:isshowenmoji,enmojis:enmojis,enmojipages:enmojipages,platform:platform,disableinput:disableinput}}"
+/>
+
+<!--分享的遮罩-->
+<view class='container-share-tip' wx:if="{{showShareTip}}"  catchtouchmove='fref'>
+  <image catchtap='onsharetipclick' style='margin-top:{{shareTop}}px;margin-left:{{shareLeft}}px' class='img-share-tip' src='../imgs/sharenotice.png'></image>
+</view>
+
+<toast id='toast'>
+</toast>

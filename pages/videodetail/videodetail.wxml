@@ -34,4 +34,8 @@
 </view>
 
 <!--输入框-->
-<template is="plinput" data="{{plcount:plcount,collctionpic:artdata.collctionpic,clickCollectionAnimation:clickCollectionAnimation,isAnimatingCollection:isAnimatingCollection,isShowBtnCover:isShowBtnCover}}" />
+<template is="plinput" data="{{plcount:plcount,collctionpic:artdata.collctionpic,clickCollectionAnimation:clickCollectionAnimation,isAnimatingCollection:isAnimatingCollection,isShowBtnCover:isShowBtnCover,isshowkeyboard:isshowkeyboard,keyboardheight:keyboardheight,inputFocus:inputFocus,emojiH:emojiH,emojiW:emojiW,inputvalue:inputvalue,isshowenmoji:isshowenmoji,enmojis:enmojis,enmojipages:enmojipages,platform:platform,disableinput:disableinput}}"
+/>
+
+<toast id='toast'>
+</toast>

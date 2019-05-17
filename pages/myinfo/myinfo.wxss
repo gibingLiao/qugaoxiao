@@ -116,8 +116,9 @@
   font-size: 32rpx;
   color: #2d2d2d;
   margin-left: 12rpx;
-  margin-top: 35rpx;
+  margin-top: 40rpx;
   letter-spacing: 2rpx;
+  line-height: 32rpx;
 }
 
 /*我的收藏数量*/
@@ -126,7 +127,8 @@
   font-size: 30rpx;
   color: #979797;
   margin-left: 12rpx;
-  margin-top: 37rpx;
+  margin-top: 40rpx;
+  line-height: 30rpx;
 }
 
 /*箭头*/

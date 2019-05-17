@@ -1,5 +1,5 @@
 // pages/suggestion/suggestion.js
-
+const Page = require('../../utils/alading/ald-stat.js').Page;
 const app = getApp();
 
 Page({
@@ -134,7 +134,13 @@ Page({
   /**
    * 用户点击右上角分享
    */
-  onShareAppMessage: function() {
+  onShareAppMessage: function(options) {
+    if (options && options.from == 'menu') {
+      var arrPages = getCurrentPages();
+      if (arrPages.length > 0) {
+        app.reportUserShare(0, 2, arrPages[arrPages.length - 1].route);
+      }
 
+    }
   }
 })

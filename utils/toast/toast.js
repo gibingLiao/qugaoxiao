@@ -8,7 +8,8 @@ Component({
    */
   data: { // 弹窗显示控制 
     animationData: {},
-    content: '提示内容'
+    content: '',
+    height:0,
   },
   /**
    * 组件的方法列表 
@@ -26,7 +27,8 @@ Component({
       animation.opacity(1).step()
       this.setData({
         animationData: animation.export(),
-        content: val
+        content: val,
+        height:100
       })
       /**
        * 延时消失
@@ -34,9 +36,11 @@ Component({
       setTimeout(function () {
         animation.opacity(0).step()
         this.setData({
-          animationData: animation.export()
+          animationData: animation.export(),
+          content:"",
+          height:0
         })
-      }.bind(this), 1500)
+      }.bind(this), 2000)
     }
   }
 })

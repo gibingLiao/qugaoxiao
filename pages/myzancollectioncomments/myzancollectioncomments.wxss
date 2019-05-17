@@ -29,11 +29,16 @@
 /*数据空 图片*/
 
 .image-empty-zan {
-  height: 195rpx;
+  height: 228rpx;
   width: 300rpx;
 }
 .image-empty-collection{
-   height: 229rpx;
+  height: 170rpx;
+  width: 300rpx;
+}
+
+.image-empty-pl{
+  height: 210rpx;
   width: 300rpx;
 }
 

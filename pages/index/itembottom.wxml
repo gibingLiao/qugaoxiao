@@ -26,9 +26,13 @@
 
     </view>
 
-    <view class='art-item-bottom-icon container-share-click' catchtap='onShareClick'>
+    <view class='art-item-bottom-icon container-share-click' catchtap='onShareClick' data-item='{{item}}' data-index='{{index}}'>
       <!--background-image:url(../imgs/content_btn_share.png);-->
-      <button class="art-item-bottom-icon art-item-bottom-share-icon" open-type="share" plain="true" data-index='{{index}}' data-item='{{item}}' />
+      <image src='../imgs/content_btn_share.png' class='img-art-item-bottom-icon-share'></image>
+      <text class='text-fenxiangweixin'>分享微信</text>
+      <button data-type="0" class="art-item-bottom-icon art-item-bottom-share-icon" open-type="share" plain="true" data-index='{{index}}' data-item='{{item}}' wx:if="{{item.atype!=0}}" />
+
+
     </view>
   </view>
 
@@ -45,5 +49,6 @@
         </view>
       </block>
     </view>
+    <image src='../imgs/content_icon_hot3.png' class='img-shenpinglun'></image>
   </view>
 </template>

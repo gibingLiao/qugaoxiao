@@ -1,4 +1,5 @@
 // pages/myzancollectioncomments/myzancollectioncomments.js
+const Page = require('../../utils/alading/ald-stat.js').Page;
 const app = getApp();
 var emojiFn = require('../../utils/emoj.js');
 const TxvContext = requirePlugin("tencentvideo");
@@ -125,7 +126,13 @@ Page({
           that.data.hasMoreData = false;
         }
 
-        for (var i = 0; i < items.length; i++) {
+        for (var i = items.length - 1; i >= 0; i--) {
+
+          if (items[i].celltype && items[i].celltype != 0) {
+            // items.remove(items[i]);
+            delete items[i];
+            continue;
+          }
           items[i].title = decodeURIComponent(items[i].title);
           items[i].attadress = decodeURIComponent(items[i].attadress);
           items[i].imgurl = decodeURIComponent(items[i].imgurl);
@@ -796,6 +803,20 @@ Page({
     }
   },
 
+  /**段子分享的点击 */
+  onShareClick: function(event) {
+    var item = event.currentTarget.dataset.item;
+    if ('0' == item.atype) {
+      //去段子详情页
+      var index = event.currentTarget.dataset.index;
+      var url = '../duanzidetail/duanzidetail?zhaiyao=' + encodeURIComponent(item.zhaiyao) + '&artid=' + item.artid + "&dataindex=" + index;
+      wx.navigateTo({
+        url: url + '&index=' + index + "&fromtype=share",
+      })
+
+    }
+  },
+
   /**分享的时候调用 */
   onShareAppMessage: function(options) {
     // console.log(options);
@@ -821,23 +842,60 @@ Page({
       if (options.from == 'button') {
         var item = options.target.dataset.item;
         if (item) {
+
           if (item.title) {
-            shareObj.title = item.title;
+            // shareObj.title = item.title;
+            var tag = "";
+            if (0 == item.atype) {
+              //文本
+              tag = "【段子】"
+            } else if (1 == item.atype || 3 == item.atype) {
+              tag = "【视频】"
+            } else if (2 == item.atype) {
+              tag = "【趣图】"
+            } else if (4 == item.atype) {
+              tag = "【动图】"
+            } else if (5 == item.atype) {
+              tag = "【长文】"
+            }
+            shareObj.title = tag + item.title;
+            // shareObj.title = item.title;
           }
+
           if (item.imgurl) {
             shareObj.imageUrl = item.imgurl;
           }
 
+
+          if (item.artid && item.atype) {
+            shareObj.path = shareObj.path + "?share_artid=" + item.artid + "&share_atype=" + item.atype;
+          }
+
+          //去分享的图片，如果有单独配置，覆盖分享图片
+          if (item.xcximgurl) {
+            shareObj.imageUrl = decodeURIComponent(item.xcximgurl);
+          }
+
+          //统计分享
+          app.reportUserShare(1, 0, item.artid);
+
         }
-        // shareObj.path = '/pages/btnname/btnname?btn_name=' + eData.name;　　
+
+      } else if (options.from == 'menu') {
+
+        var arrPages = getCurrentPages();
+        if (arrPages.length > 0) {
+          app.reportUserShare(0, 2, arrPages[arrPages.length - 1].route);
+        }
+
       }
+
     }
 
     return shareObj;
   },
 
-  /**分享的点击 */
-  onShareClick: function() {},
+
 
   //获取用户信息回调
   getUserInfoCallBack: function(res) {

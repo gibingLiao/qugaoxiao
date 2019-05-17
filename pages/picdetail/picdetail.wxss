@@ -20,7 +20,7 @@
 /*title样式*/
 
 .text-title {
-  font-size: 32rpx;
+  font-size: 36rpx;
   color: #343434;
 }
 

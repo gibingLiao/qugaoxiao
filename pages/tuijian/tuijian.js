@@ -1,5 +1,5 @@
 // pages/tuijian/tuijian.js
-
+const Page = require('../../utils/alading/ald-stat.js').Page;
 const app = getApp();
 
 Page({
@@ -87,7 +87,7 @@ Page({
   /**
    * 用户点击右上角分享
    */
-  onShareAppMessage: function() {
+  onShareAppMessage: function(options) {
 
     var shareObj = {
       title: this.data.share_title, // 转发后 所显示的title
@@ -101,6 +101,26 @@ Page({
 
       }
     }
+
+    //分享统计
+    if (options) {
+      if (options.from == 'menu') {
+        var arrPages = getCurrentPages();
+        if (arrPages.length > 0) {
+          app.reportUserShare(0, 2, arrPages[arrPages.length - 1].route);
+        }
+
+      } else if (options.from == 'button') {
+        var arrPages = getCurrentPages();
+        if (arrPages.length > 0) {
+          app.reportUserShare(0, 0, arrPages[arrPages.length - 1].route);
+        }
+
+      }
+    }
+
+
+
     return shareObj;
   }
 })

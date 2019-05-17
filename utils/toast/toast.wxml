@@ -1,5 +1,5 @@
 <view class='wx-toast-box' animation="{{animationData}}">
-  <view class='wx-toast-content'>
+  <view class='wx-toast-content' wx:if="{{content&&content.length>0}}">
     <view class='wx-toast-toast'>{{content}}</view>
   </view>
 </view>

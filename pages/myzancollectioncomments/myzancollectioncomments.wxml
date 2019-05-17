@@ -8,7 +8,7 @@
 
     <!--视频类-->
     <view class='art-item art-video' bindtap="GoArtDetail" data-index='{{index}}' wx:if="{{item.atype=='1'||item.atype=='3'}}">
-      <template is="art-top" data="{{mark:item.mark}}" />
+      <!-- <template is="art-top" data="{{mark:item.mark}}" /> -->
       <view class='art-item-con'>
         <text class='art-item-con-title' wx:if="{{item.title&&item.title.length>0}}">{{item.title}}</text>
         <view class='art-item-con-img-box'>
@@ -33,7 +33,7 @@
 
     <!--图片类-->
     <view class='art-item art-image' bindtap="GoArtDetail" data-index='{{index}}' wx:if="{{item.atype=='2'||item.atype=='4'||item.atype=='5'}}">
-      <template is="art-top" data="{{mark:item.mark}}" />
+      <!-- <template is="art-top" data="{{mark:item.mark}}" /> -->
       <view class='art-item-con'>
         <text class='art-item-con-title' wx:if="{{item.title&&item.title.length>0}}">{{item.title}}</text>
         <view class='art-item-con-img-box'>
@@ -45,9 +45,11 @@
           <image class="art-item-con-img-gif" src='../imgs/loadgif.gif' wx:if="{{item.isloadinggif}}" />
 
 
-          <view class='art-item-con-img-mark' wx:if="{{item.zhaiyao&&item.zhaiyao.length>0&&item.zhaiyao=='查看全文'}}">
-            <text class='art-item-con-img-mark-text'>{{item.zhaiyao}}</text>
-            <text class='art-item-con-img-mark-text art-item-con-img-mark-text-seeall' wx:if="{{item.zhaiyao_seeall.length>0}}">{{item.zhaiyao_seeall}}</text>
+          <view class='art-item-con-img-mark' wx:if="{{item.zhaiyao_seeall&&item.zhaiyao_seeall.length>0&&(!item.zhaiyao||item.zhaiyao.length<=0)}}">
+            <!-- <text class='art-item-con-img-mark-text'>{{item.zhaiyao}}</text> -->
+            <!-- 只有查看全文四个字 -->
+            <image src='../imgs/content_icon_view.png' class='img-seeall'></image>
+            <text class='art-item-con-img-mark-text'>{{item.zhaiyao_seeall}}</text>
           </view>
           <view class='art-item-con-img-mark art-item-con-img-mark-left' wx:if="{{item.zhaiyao&&item.zhaiyao.length>0&&item.zhaiyao!='查看全文'}}">
             <text class='art-item-con-img-mark-text'>{{item.zhaiyao}}</text>
@@ -61,7 +63,7 @@
 
     <!--段子类-->
     <view class='art-item art-text' bindtap="GoArtDetail" data-index='{{index}}' wx:if="{{item.atype=='0'}}">
-      <template is="art-top" data="{{mark:item.mark}}" />
+      <!-- <template is="art-top" data="{{mark:item.mark}}" /> -->
       <view class='art-item-con'>
         <text catchtap='onItemTagClick' data-tagid='{{CurListData.items[index].tagid}}' class='art-item-con-tag' wx:if="{{item.tag&&item.tag.length>0}}">{{item.tag}} </text>
         <text class='art-item-con-text'>{{item.zhaiyao}}</text>
@@ -77,8 +79,8 @@
 <view class='container-empty-zan' wx:if='{{showemptyzan}}'>
   <view class='container-empty-zan-1'>
     <image class='image-empty-zan' src="../imgs/empty_img_nolike.png"></image>
-    <text class='text-empty-zan-1'>色即是空 空即是色</text>
-    <text class='text-empty-zan-2'> 空空的OO... 香蕉都没有一根！</text>
+    <text class='text-empty-zan-1'>无赞不欢乐</text>
+    <text class='text-empty-zan-2'>人美心善多点赞 收入会变多哦</text>
   </view>
 </view>
 
@@ -86,7 +88,7 @@
 <view class='container-empty-zan' wx:if='{{showemptycollection}}'>
   <view class='container-empty-zan-1'>
     <image class='image-empty-collection' src="../imgs/empty_img_nocollect.png"></image>
-    <text class='text-empty-zan-1'>没有收藏癖的你</text>
+    <text class='text-empty-zan-1'>无收藏无回忆</text>
     <text class='text-empty-zan-2'> 要去哪里寻找回忆 ？！</text>
   </view>
 </view>
@@ -94,8 +96,8 @@
 <!--我的评论列表为空-->
 <view class='container-empty-zan' wx:if='{{showemptycomments}}'>
   <view class='container-empty-zan-1'>
-    <image class='image-empty-collection' src="../imgs/empty_img_nopl.png"></image>
-    <text class='text-empty-zan-1'>明明充满了表达欲</text>
-    <text class='text-empty-zan-2'>却没发表过任何评论...</text>
+    <image class='image-empty-pl' src="../imgs/empty_img_nopl.png"></image>
+    <text class='text-empty-zan-1'>无评论无真相</text>
+    <text class='text-empty-zan-2'>参与其中 乐在其中</text>
   </view>
 </view>

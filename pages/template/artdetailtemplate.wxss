@@ -14,53 +14,166 @@
   font-size: 30rpx;
 }
 
-/*点赞容器样式*/
+.btn-login-zan-conetnt::after {
+  border: none;
+}
 
-.container-like {
-  height: 140rpx;
-  width: 140rpx;
-  margin: 0 auto;
-  background: #eee;
-  border-radius: 50%;
-  overflow: visible;
-  text-align: center;
-  margin-top: 22rpx;
+/*点赞，收藏，分享容器*/
+
+.container-like-colection-share {
+  height: 86rpx;
+  width: 100%;
+  display: flex;
+  flex-direction: row;
   position: relative;
 }
 
-.btn-login-zan-conetnt {
-  height: 140rpx;
-  width: 140rpx;
-  background: transparent;
-  border-radius: 50%;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
+/*点赞容器样式*/
 
-.btn-login-zan-conetnt::after {
-  border: none;
+.container-like {
+  height: 86rpx;
+  width: 140rpx;
+  overflow: visible;
+  position: absolute;
+  left: 0;
 }
 
 /*点赞图片样式*/
 
 .img-like {
-  margin-top: 20rpx;
-  height: 70rpx;
-  width: 64rpx;
-  vertical-align: top;
+  height: 40rpx;
+  width: 37rpx;
   position: absolute;
-  /*right: calc(50% - 25rpx);*/
-  left: 50%;
-  margin-left: -32rpx;
+  top: 23rpx;
+  left: 25rpx;
 }
 
 /*点赞个数样式*/
 
-.view-like-count {
-  color: #848484;
+.text-like-count {
+  color: #7e7e7e;
   font-size: 26rpx;
-  padding-top: 92rpx;
+  position: absolute;
+  left: 72rpx;
+  line-height: 36rpx;
+  top: 26rpx;
+}
+
+.btn-login-zan-conetnt {
+  height: 86rpx;
+  width: 206rpx;
+  overflow: visible;
+  position: relative;
+  left: 0;
+  background: transparent;
+}
+
+/*分享的容器 */
+
+.container-share {
+  height: 64rpx;
+  width: 160rpx;
+  position: relative;
+  top: 11rpx;
+  background: #44acff;
+  border-radius: 32rpx;
+  left: calc(100vw - 186rpx);
+  padding: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.image-share {
+  margin-left: 24rpx;
+  width: 46rpx;
+  height: 38rpx;
+  text-align: center;
+}
+
+.text-share {
+  font-size: 26rpx;
+  color: white;
+  text-align: center;
+  margin-left: 10rpx;
+  display: inline-block;
+}
+
+.btn-share {
+  height: 64rpx;
+  width: 160rpx;
+  position: absolute;
+  background: transparent;
+  border: none;
+  left: 0;
+  top: 0;
+  background-repeat: no-repeat;
+}
+
+button.btn-share {
+  border: none;
+}
+
+/*收藏区域*/
+
+.container-collection {
+  height: 64rpx;
+  width: 160rpx;
+  position: absolute;
+  top: 11rpx;
+  background: #44acff;
+  border-radius: 32rpx;
+  left: calc(100vw - 355rpx);
+  padding: 0;
+  text-align: center;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background: linear-gradient(to right, #ffcc36, #feb833);
+}
+
+.image-collection {
+  height: 32rpx;
+  width: 32rpx;
+  margin-left: 30rpx;
+}
+
+.text-collection {
+  font-size: 26rpx;
+  color: white;
+  text-align: center;
+  margin-left: 8rpx;
+  display: inline-block;
+}
+
+.collection-login-btn {
+  height: 64rpx;
+  width: 160rpx;
+  position: absolute;
+  background: transparent;
+  border: none;
+  background-repeat: no-repeat;
+}
+
+.collection-login-btn::after {
+  border: none;
+}
+
+/*举报容器*/
+
+.container-jubao {
+  height: 86rpx;
+  width: 86rpx;
+  position: absolute;
+  left: 140rpx;
+}
+
+.img-jubao {
+  margin-top: 27rpx;
+  margin-left: 27rpx;
+  height: 32rpx;
+  width: 32rpx;
 }
 
 /*评论个数，分割线，评论整体容器样式*/
@@ -217,6 +330,18 @@
   padding: 0;
 }
 
+.container-pl-touch-hidden {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  overflow: visible;
+  padding: 0;
+  background: transparent;
+
+}
+
 /*输入框上方阴影*/
 
 .image-yinying {
@@ -232,19 +357,31 @@
 .pl-input {
   height: 88rpx;
   background: white;
-  float: left;
+  /* float: left; */
   width: 100vw;
   display: flex;
+  left: 0;
+  bottom: 0;
   flex-direction: row;
 }
 
 /*输入框样式*/
 
 .input {
-  height: 88rpx;
+  height: auto;
   font-size: 30rpx;
   flex: 1;
   color: #2d2d2d;
+  padding-left: 26rpx;
+  /* padding-top: 10rpx;  */
+}
+
+.text-input-zhanwei {
+  height: 88rpx;
+  font-size: 30rpx;
+  flex: 1;
+  margin-top: 23rpx;
+  color: #929292;
   padding-left: 26rpx;
 }
 
@@ -260,6 +397,7 @@
   width: 70rpx;
   display: inline-block;
   margin-left: 20rpx;
+  margin-right: -10rpx;
 }
 
 /*评论数量的图片*/
@@ -289,26 +427,14 @@
 
 /*收藏容器*/
 
-.container-collection {
+/* .container-collection {
   height: 88rpx;
-  width: 88rpx;
+  width: 80rpx;
   margin: 0 auto;
   overflow: visible;
   text-align: center;
   position: relative;
-}
-
-.collection-login-btn {
-  height: 88rpx;
-  width: 88rpx;
-  margin: 0 auto;
-  position: relative;
-  background: transparent;
-}
-
-.collection-login-btn::after {
-  border: none;
-}
+} */
 
 /*收藏的样式*/
 
@@ -345,12 +471,31 @@
   height: 70rpx;
   line-height: 70rpx;
   border-radius: 8rpx;
-  background: red;
+  background: linear-gradient(to right, #5aafff, #489aff);
   font-size: 35rpx;
   display: inline-block;
   text-align: center;
   vertical-align: middle;
   margin-top: 9rpx;
+}
+
+.btn-send-comment {
+  width: 100%;
+  height: 88rpx;
+  background: transparent;
+  position: absolute;
+  right: 0;
+  background: transparent;
+  border: none;
+  background-repeat: no-repeat;
+}
+
+.btn-send-comment::after {
+  border: none;
+}
+
+button.btn-send-comment {
+  border: none;
 }
 
 /*分享图片样式*/
@@ -372,10 +517,9 @@ button.img-share {
 /*表情容器*/
 
 .container-enmoji {
-  margin-top: 88rpx;
   height: 200rpx;
   width: 100%;
-  background: white
+  background: white;
 }
 
 /*swiper的样式*/
@@ -393,7 +537,6 @@ button.img-share {
   align-items: center;
   display: unset;
   float: left;
-
 }
 
 /* .jref {

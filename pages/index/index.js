@@ -1,5 +1,5 @@
 //index.js
-
+const Page = require('../../utils/alading/ald-stat.js').Page;
 import timer from 'timer.js'
 
 //获取应用实例
@@ -58,7 +58,7 @@ Page({
     mStringStimeReping: '',
     mStringStimeBiaoqian: '',
     mPage: 1,
-    currentPageType: 0, //当前页面类型 0--推荐  1--图文  2--段子  3--动图  4--视频  5--热评  6--标签
+    currentPageType: 0, //当前页面类型 0--推荐  1--图文  2--段子  3--动图  4--最新  5--热评  6--标签
     isLoadingData: false, //是否正在请求数据
     itemMaleHot: [], //标签男生热点
     itemFemaleHot: [], //女生热点
@@ -81,13 +81,15 @@ Page({
     //是否展示登录覆盖的btn
     isShowBtnCover: true,
 
+    //是否展示刷新了一大波笑点的文字
+    showtextrefreshmore: false,
 
+    //是否展示加载数据的loading菊花效果
+    showloadingjuhua: true,
   },
 
 
   onLoad: function(option) {
-
-
 
     wx.getSystemInfo({ // 获取页面可视区域的高度
       success: (res) => {
@@ -97,18 +99,54 @@ Page({
       },
     })
 
-    // this.setData({
-    //   userInfo: app.globalData.userInfo
-    // });
 
 
-    this.LoadNextPage(this.data.currentPageType, false);
+    //获取进入页面的定位参数（切到某个栏目，或者定位到某个标签）
+    var pagetype = option.pagetype;
+    if (pagetype == 'tuijian') {
+      this.data.currentPageType = 0;
+    } else if (pagetype == 'tuwen') {
+      this.data.currentPageType = 1;
+    } else if (pagetype == 'duanzi') {
+      this.data.currentPageType = 2;
+    } else if (pagetype == 'dongtu') {
+      this.data.currentPageType = 3;
+    } else if (pagetype == 'zuixin') {
+      this.data.currentPageType = 4;
+    } else if (pagetype == 'reping') {
+      this.data.currentPageType = 5;
+    } else if (pagetype == 'biaoqian') {
+      this.data.currentPageType = 6;
+      //定位到标签，要多获取一个标签id，在标签接口获取成功以后，判断是否要定位到标签，然后去请求列表接口
+      this.data.selectHotTagId = option.selectid;
+      this.data.switchbiaoqian = true;
+    }
+
+    if (this.data.currentPageType != 6) {
+
+      if (this.data.currentPageType != 0) {
+        this.SelectMenu({
+          currentTarget: {
+            dataset: {
+              type: this.data.currentPageType
+            }
+          }
+        });
+      }
+
+      this.LoadNextPage(this.data.currentPageType, false);
+    }
+
 
     // this.ProgressStartNextSection();
     //获取主题信息
     this.getZhutiData();
+    //获取弹出推荐提示浮层的配置接口
+    this.getTuijianShareTipsConfig();
+    //获取弹出添加小程序浮层的配置接口
+    this.getAddXiaoChengXuTipsConfig();
 
-    //判断是否是从分享进来
+    //判断是否是从分享进来,定位到内页
     if (option && option.share_artid && option.share_atype) {
       //去详情页
       var index = -1;
@@ -116,7 +154,8 @@ Page({
       var url;
       if ('0' == atype) {
         //段子
-        url = '../duanzidetail/duanzidetail?zhaiyao=' + option.share_zhaiyao + '&artid=' + option.share_artid;
+        // url = '../duanzidetail/duanzidetail?zhaiyao=' + option.share_zhaiyao + '&artid=' + option.share_artid;
+        url = '../duanzidetail/duanzidetail?artid=' + option.share_artid;
 
       } else if ('5' == atype) {
         //图文
@@ -140,6 +179,218 @@ Page({
   },
 
 
+  /**获取添加小程序的浮层的配置接口
+   * /xcx/qgx/qgx.ashx?action=QueryAddToMyXCXConfig&firststart=2019-05-15+17%3a15%3a55&laststart=2019-05-15+17%3a15%3a55&lastshow=2019-05-15+17%3a15%3a55&showtimes=1&hadcollect=0
+firststart :  首次启动时间   url编码一下
+laststart:  上次启动时间   url编码一下
+lastshow :  上次展示浮层时间   url编码一下
+showtimes : 浮层已展示次数
+hadcollect ：用户是否已添加过 0--未添加 1--已添加
+   */
+  getAddXiaoChengXuTipsConfig: function() {
+    var firststart = wx.getStorageSync('firststart_addxcx');
+    var laststart = wx.getStorageSync('laststart_addxcx');
+    var lastshow = wx.getStorageSync('lastshow_addxcx');
+    var showtimes = wx.getStorageSync('showtimes_addxcx');
+    var hadcollect = wx.getStorageSync('hadcollect_addxcx');
+    if (!firststart) {
+      firststart = "";
+    }
+    if (!laststart) {
+      laststart = "";
+    }
+    if (!lastshow) {
+      lastshow = "";
+    }
+    if (!showtimes) {
+      showtimes = 0;
+    }
+    if (!hadcollect) {
+      hadcollect = "0";
+    }
+
+    var that = this;
+    app.requestWithSessionId({
+      url: 'https://app.xiaogechui.cn/xcx/qgx/qgx.ashx?action=QueryAddToMyXCXConfig&firststart=' + encodeURIComponent(firststart) + '&laststart=' + encodeURIComponent(laststart) + '&lastshow=' + encodeURIComponent(lastshow) + '&showtimes=' + showtimes + '&hadcollect=' + hadcollect,
+      data: {
+        x: '',
+        y: ''
+      },
+      header: {
+        'content-type': 'application/json' // 默认值
+      },
+      success(res) {
+        //  {status: 0, needshow: "1", delay: "100", servertime: "2019-05-16%2011%3a45%3a31", msg: ""}
+        if (res.data.status != 0) {
+          return;
+        }
+
+        if (!firststart) {
+          //存入首次打开小程序的时间
+          wx.setStorageSync('firststart_addxcx', decodeURIComponent(res.data.servertime));
+        }
+
+        //此次接口请求成功，将此次的时间存入上次开打的时间
+        wx.setStorageSync('laststart_addxcx', decodeURIComponent(res.data.servertime));
+
+        if (res.data.needshow == '1') {
+          //需要展示添加浮层
+          if (res.data.delay) {
+            var delay = parseInt(res.data.delay);
+            setTimeout(() => {
+              //若果现在推荐分享浮层是展示状态，不展示添加提示浮层
+              if (that.data.showsharetip) {
+                return
+              }
+
+              //展示浮层
+              that.setData({
+                showaddtip: true,
+              });
+              //展示次数加1
+              wx.setStorageSync('showtimes_addxcx', showtimes + 1);
+              //记录上次展现的时间
+              wx.setStorageSync('lastshow_addxcx', decodeURIComponent(res.data.servertime));
+            }, delay * 1000);
+          }
+        }
+
+
+      },
+      fail: function(res) {},
+      complete: function(res) {
+
+      }
+    });
+
+  },
+
+  //添加小程序提示浮层，知道了的点击
+  onaddxcxknowclick: function() {
+    this.setData({
+      showaddtip: false,
+    });
+  },
+
+  //添加小程序提示浮层，已添加的点击
+  onhasaddxcxclick: function() {
+    this.setData({
+      showaddtip: false,
+    });
+    wx.setStorageSync('hadcollect_addxcx', '1');
+  },
+
+
+
+  /**获取推荐分享浮层弹出的配置接口
+   * /xcx/qgx/qgx.ashx?action=QueryTJShareConfig&firststart=2019-05-15+17%3a15%3a55&laststart=2019-05-15+17%3a15%3a55&lastshow=2019-05-15+17%3a15%3a55&showtimes=1
+
+firststart :  首次启动时间   url编码一下
+laststart:  上次启动时间   url编码一下
+lastshow :  上次展示浮层时间   url编码一下
+showtimes : 浮层已展示次数
+   */
+  getTuijianShareTipsConfig: function() {
+    var firststart = wx.getStorageSync('firststart_tj_share');
+    var laststart = wx.getStorageSync('laststart_tj_share');
+    var lastshow = wx.getStorageSync('lastshow_tj_share');
+    var showtimes = wx.getStorageSync('showtimes_tj_share');
+    if (!firststart) {
+      firststart = '';
+    }
+    if (!laststart) {
+      laststart = '';
+    }
+    if (!lastshow) {
+      lastshow = '';
+    }
+    if (!showtimes) {
+      showtimes = 0;
+    }
+
+    var that = this;
+    app.requestWithSessionId({
+      url: 'https://app.xiaogechui.cn/xcx/qgx/qgx.ashx?action=QueryTJShareConfig&firststart=' + encodeURIComponent(firststart) + '&laststart=' + encodeURIComponent(laststart) + '&lastshow=' + encodeURIComponent(lastshow) + '&showtimes=' + showtimes,
+      data: {
+        x: '',
+        y: ''
+      },
+      header: {
+        'content-type': 'application/json' // 默认值
+      },
+      success(res) {
+        //  {status: 0, needshow: "1", delay: "200", servertime: "2019-05-16%2009%3a26%3a53", msg: ""}
+        if (res.data.status != 0) {
+          return;
+        }
+
+        if (!firststart) {
+          //存入首次打开小程序的时间
+          wx.setStorageSync('firststart_tj_share', decodeURIComponent(res.data.servertime));
+        }
+
+        //此次接口请求成功，将此次的时间存入上次开打的时间
+        wx.setStorageSync('laststart_tj_share', decodeURIComponent(res.data.servertime));
+
+        if (res.data.needshow == '1') {
+          //需要展示推荐浮层
+          if (res.data.delay) {
+            //要展示，去请求推荐分享的数据
+            that.getTJShareInfo();
+            var delay = parseInt(res.data.delay);
+            setTimeout(() => {
+
+              //若果现在添加提示浮层是展示状态，不展示推荐分享提示浮层
+              if (that.data.showaddtip) {
+                return
+              }
+
+              //展示浮层
+              that.setData({
+                showsharetip: true,
+              });
+              //展示次数加1
+              wx.setStorageSync('showtimes_tj_share', showtimes + 1);
+              //记录上次展现的时间
+              wx.setStorageSync('lastshow_tj_share', decodeURIComponent(res.data.servertime));
+            }, delay * 1000);
+          }
+        }
+
+
+      },
+      fail: function(res) {},
+      complete: function(res) {
+
+      }
+    });
+  },
+
+
+
+  /**获取推荐分享的分享数据 */
+  getTJShareInfo: function() {
+    var that = this;
+    app.requestWithSessionId({
+      url: 'https://app.xiaogechui.cn/xcx/qgx/qgx.ashx?action=QueryShareInfo',
+      data: {},
+      success: function(res) {
+        if (res.data.status != 0) {
+          return;
+        }
+        that.data.share_tj_title = decodeURIComponent(res.data.title);
+        that.data.share_tj_path = decodeURIComponent(res.data.path);
+        that.data.share_tj_img = decodeURIComponent(res.data.imgurl);
+      }
+    });
+  },
+
+  //推荐浮层关闭按钮的点击
+  ontuijiansharecloseclick: function() {
+    this.setData({
+      showsharetip: false,
+    });
+  },
 
 
   //主题的点击
@@ -314,7 +565,9 @@ Page({
       wx.stopPullDownRefresh();
 
     } else {
+      this.data.showtextrefreshmore = true;
       this.LoadNextPage(this.data.currentPageType, false);
+
     }
 
 
@@ -376,6 +629,9 @@ Page({
 
     if (toTabIndex != 6) {
       if (toTabIndex == this.data.indicatorCurrentIndex) {
+        //触发下拉刷新
+        wx.startPullDownRefresh();
+
         return;
       }
     } else {
@@ -390,8 +646,6 @@ Page({
           return;
         }
       }
-
-
 
 
     }
@@ -494,17 +748,20 @@ Page({
     });
 
     //清空stime
-    this.data.mStringStimeTuijian = '';
-    this.data.mStringStimeTuwen = '';
-    this.data.mStringStimeDuanzi = '';
-    this.data.mStringStimeDongtu = '';
-    this.data.mStringStimeShipin = '';
-    this.data.mStringStimeReping = '';
-    this.data.mStringStimeBiaoqian = '';
+    // this.data.mStringStimeTuijian = '';
+    // this.data.mStringStimeTuwen = '';
+    // this.data.mStringStimeDuanzi = '';
+    // this.data.mStringStimeDongtu = '';
+    // this.data.mStringStimeShipin = '';
+    // this.data.mStringStimeReping = '';
+    // this.data.mStringStimeBiaoqian = '';
     //请求数据
     if (toTabIndex != 6) {
       this.LoadNextPage(this.data.currentPageType, false);
-
+      this.setData({
+        showloadingjuhua: true,
+        isShowHotTags: false
+      });
     } else {
 
       // 一键回到顶部
@@ -520,9 +777,16 @@ Page({
       //判断标签在不在如果在则去请求当前标签列表
       if (this.data.selectHotTag) {
         this.LoadNextPage(6, false);
+        this.setData({
+          showloadingjuhua: true
+        });
       } else {
         //没有选中的tag。展现tag选择层
         var that = this;
+        this.setData({
+          showloadingjuhua: false
+        });
+
         setTimeout(function() {
           that.setData({
             isShowHotTags: true,
@@ -575,8 +839,9 @@ Page({
       //动图
       url = 'https://app.xiaogechui.cn/webservice/article/articles.ashx?action=QueryArtListByAtype&atype=4&stime=' + this.data.mStringStimeDongtu + "&pageno=" + this.data.mPage;
     } else if (4 == pageType) {
-      //视频
-      url = 'https://app.xiaogechui.cn/webservice/article/articles.ashx?action=QueryArtListByAtype&atype=3&stime=' + this.data.mStringStimeShipin + "&pageno=" + this.data.mPage;
+      //最新（原位视频位置）
+      // url = 'https://app.xiaogechui.cn/webservice/article/articles.ashx?action=QueryArtListByAtype&atype=3&stime=' + this.data.mStringStimeShipin + "&pageno=" + this.data.mPage;
+      url = "https://app.xiaogechui.cn/webservice/article/articles.ashx?action=QueryNewArtList&tagid=&stime=" + this.data.mStringStimeShipin + "&pageno=" + this.data.mPage;
     } else if (5 == pageType) {
       //热评
       url = 'https://app.xiaogechui.cn/webservice/article/articles.ashx?action=QueryPLArtList&stime=' + this.data.mStringStimeReping + "&pageno=" + this.data.mPage;
@@ -603,8 +868,50 @@ Page({
           return;
         }
 
+        if (that.data.showtextrefreshmore) {
+          //展现刷出一大波笑点
+          //赋值动画
+          var animation = wx.createAnimation({
+            duration: 300,
+            timingFunction: 'ease'
+          })
+          animation.opacity(1).translate(0, 68 * systemInfo.windowWidth / 750).step();
+
+          that.setData({
+            showtextrefreshmore: true,
+
+          }, () => {
+            //界面渲染成功后执行动画
+            that.setData({
+              showtextrefreshmoreanimation: animation.export(),
+            });
+          });
+
+          setTimeout(() => {
+            //赋值动画 ,还原
+            var animation = wx.createAnimation({
+              duration: 0,
+            })
+            animation.opacity(0).translate(0, 0).step();
+
+            that.setData({
+              showtextrefreshmore: false,
+              showtextrefreshmoreanimation: animation.export(),
+            });
+          }, 2500);
+        }
+
+
+        var itemReal = [];
         var items = res.data.items;
-        for (var i = 0; i < items.length; i++) {
+        for (var i = items.length - 1; i >= 0; i--) {
+
+          if (items[i].celltype && items[i].celltype != 0) {
+            // items.pop(items[i]);
+            // delete items[i];
+            continue;
+          }
+
           items[i].title = decodeURIComponent(items[i].title);
           items[i].attadress = decodeURIComponent(items[i].attadress);
           items[i].imgurl = decodeURIComponent(items[i].imgurl);
@@ -674,6 +981,7 @@ Page({
             items[i].id = i;
           }
 
+          itemReal.push(items[i]);
         }
 
 
@@ -693,14 +1001,18 @@ Page({
         if (isLoadMore) {
           //加载下一页
           that.setData({
-            ['CurListData.items']: that.data.CurListData.items.concat(items),
+            ['CurListData.items']: that.data.CurListData.items.concat(itemReal),
             isShowHotTags: false,
+            showloadingjuhua: itemReal.length > 0,
           });
+
+
         } else {
           //下拉刷新
           that.setData({
             ['CurListData.items']: [],
             isShowHotTags: false,
+            showloadingjuhua: true,
           });
           // 一键回到顶部
           if (wx.pageScrollTo) {
@@ -709,7 +1021,7 @@ Page({
             })
           }
           that.setData({
-            ['CurListData.items']: items,
+            ['CurListData.items']: itemReal,
             isShowHotTags: false,
           });
 
@@ -1300,6 +1612,7 @@ Page({
       if (maxIndex + 1 < this.data.CurListData.items.length - 1) {
         item2 = this.data.CurListData.items[maxIndex + 1];
         //取出gif播放状态,如果正在播放，停止播放
+
         if (item2.showaddress) {
           this.setData({
             ['CurListData.items[' + (maxIndex + 1) + '].showaddress']: false,
@@ -1335,6 +1648,7 @@ Page({
     wx.navigateTo({
       url: '../myinfo/myinfo'
     })
+
   },
 
   /**
@@ -1355,7 +1669,7 @@ Page({
         'content-type': 'application/json' // 默认值
       },
       success(res) {
-
+        console.log(res.data);
         if (res.data.status != 0) {
           //接口状态码错误
           return;
@@ -1391,7 +1705,7 @@ Page({
           res.data.items2[i].textColor = res.data.items2[i].TEXTCOLOR ? decodeURIComponent(res.data.items2[i].TEXTCOLOR) : "#656565";
           res.data.items2[i].textSelectColor = res.data.items2[i].STEXTCOLOR ? decodeURIComponent(res.data.items2[i].STEXTCOLOR) : "#fd455d";
 
-          if ('1' == res.data.items[i].ISSELECTED) {
+          if ('1' == res.data.items2[i].ISSELECTED) {
             //选中
             res.data.items2[i].showtextcolor = res.data.items2[i].textSelectColor;
             res.data.items2[i].showbg = res.data.items2[i].sColorBg;
@@ -1410,7 +1724,95 @@ Page({
 
       },
       fail: function(res) {},
-      complete: function(res) {}
+      complete: function(res) {
+
+        if (that.data.switchbiaoqian) {
+          //判断首次进来，要切换到对应的标签
+          that.data.switchbiaoqian = false;
+          //找到对应的tagid
+          var hasfind = false;
+          var findIndex = -1;
+          for (var i = 0; i < that.data.itemMaleHot.length; i++) {
+            if (that.data.itemMaleHot[i].TAGID == that.data.selectHotTagId) {
+              hasfind = true;
+              findIndex = i;
+              break;
+            }
+          }
+
+          if (!hasfind) {
+            for (var i = 0; i < that.data.itemFemaleHot.length; i++) {
+              if (that.data.itemFemaleHot[i].TAGID == that.data.selectHotTagId) {
+                hasfind = true;
+                findIndex = i;
+                break;
+              }
+            }
+
+            if (hasfind) {
+              //点击的女生热点
+              that.setData({
+                ['itemFemaleHot[' + findIndex + '].ISSELECTED']: '1',
+                ['itemFemaleHot[' + findIndex + '].showtextcolor']: that.data.itemFemaleHot[findIndex].textSelectColor, //文字选中
+                ['itemFemaleHot[' + findIndex + '].showbg']: that.data.itemFemaleHot[findIndex].sColorBg, //背景选中
+                selectHotTagType: 1,
+                selectHotTagIndex: findIndex,
+                selectHotTagId: that.data.itemFemaleHot[findIndex].TAGID,
+                selectHotTag: decodeURIComponent(that.data.itemFemaleHot[findIndex].TAG),
+              });
+
+
+              //找到，刷新界面
+              that.SelectMenu({
+                currentTarget: {
+                  dataset: {
+                    type: 6
+                  }
+                }
+              });
+
+              //请求标签数据
+              that.LoadNextPage(6, false);
+
+            
+
+
+            }
+
+          } else {
+            //找到，刷新界面
+
+            that.setData({
+              ['itemMaleHot[' + findIndex + '].ISSELECTED']: '1',
+              ['itemMaleHot[' + findIndex + '].showtextcolor']: that.data.itemMaleHot[findIndex].textSelectColor, //文字选中
+              ['itemMaleHot[' + findIndex + '].showbg']: that.data.itemMaleHot[findIndex].sColorBg, //背景选中
+              selectHotTagType: 0,
+              selectHotTagIndex: findIndex,
+              selectHotTagId: that.data.itemMaleHot[findIndex].TAGID,
+              selectHotTag: decodeURIComponent(that.data.itemMaleHot[findIndex].TAG),
+            });
+            //找到，刷新界面
+            //请求标签数据
+            that.SelectMenu({
+              currentTarget: {
+                dataset: {
+                  type: 6
+                }
+              }
+            });
+            that.LoadNextPage(6, false);
+
+          
+
+
+          }
+
+
+
+
+        }
+
+      }
     });
 
     //头像刷新
@@ -1451,6 +1853,9 @@ Page({
           headurl: decodeURIComponent(res.data.headurl),
         });
 
+        app.globalData.userInfo.avatarUrl = decodeURIComponent(res.data.headurl);
+
+        app.globalData.userInfo.nickName = decodeURIComponent(res.data.nickname);
 
       },
       complete: function(res) {
@@ -1550,14 +1955,33 @@ Page({
         selectHotTagType: -1, //选中标签属于哪种类型0--男人热点  1--女生热点
         selectHotTagIndex: -1, //选中标签的索引
         isShowHorizontalTag: false, //是否展示水平标签选项
+        showloadingjuhua: false,
       });
-    }, 500);
+    }, 300);
 
   },
 
+  /**段子分享的点击 */
+  onShareClick: function(event) {
+    var item = event.currentTarget.dataset.item;
+    if ('0' == item.atype) {
+      //去段子详情页
+      var index = event.currentTarget.dataset.index;
+      var url = '../duanzidetail/duanzidetail?zhaiyao=' + encodeURIComponent(item.zhaiyao) + '&artid=' + item.artid + "&dataindex=" + index;
+      wx.navigateTo({
+        url: url + '&index=' + index + "&fromtype=share",
+      })
+
+    }
+  },
+
+
   /**分享的时候调用 */
   onShareAppMessage: function(options) {
-    // console.log(options);
+
+
+    // console.log(options); option.pagetype = 'biaoqian';
+    // option.selectid = '63';
 
     let that = this;
     var shareObj = {
@@ -1565,39 +1989,57 @@ Page({
       path: '/pages/index/index', // 相对的路径
       imageUrl: "",
 
-      success: (res) => { // 成功后要做的事情
-        // console.log(res.shareTickets[0])
+      success: (res) => { // 成功后要做的事情,没用回调
 
-        // wx.getShareInfo({
-        //   shareTicket: res.shareTickets[0],
-        //   success: (res) => {
-        //     that.setData({
-        //       isShow: true
-        //     })
-        //     console.log(that.setData.isShow)
-        //   },
-        //   fail: function(res) {
-        //     console.log(res)
-        //   },
-        //   complete: function(res) {
-        //     console.log(res)
-        //   }
-        // })
       },
       fail: function(res) {
-        // 分享失败
-        // console.log(res)
+        // 分享失败  没用回调
       }
     }
 
     // 来自页面内的按钮的转发
     if (options) {
-      console.log(options.from);
       if (options.from == 'button') {
+
+        var btntype = options.target.dataset.type;
+        if (btntype == '1') {
+          //点击的推荐分享浮层的分享按钮
+          if (that.data.share_tj_title) {
+            shareObj.title = that.data.share_tj_title
+          }
+          if (that.data.share_tj_path) {
+            shareObj.path = that.data.share_tj_path
+          }
+          if (that.data.share_tj_img) {
+            shareObj.imageUrl = that.data.share_tj_img
+          }
+          //关闭推荐分享的浮层
+          that.setData({
+            showsharetip: false,
+          });
+
+          return shareObj;
+        }
+
+
         var item = options.target.dataset.item;
         if (item) {
           if (item.title) {
-            shareObj.title = item.title;
+            // shareObj.title = item.title;
+            var tag = "";
+            if (0 == item.atype) {
+              //文本
+              tag = "【段子】"
+            } else if (1 == item.atype || 3 == item.atype) {
+              tag = "【视频】"
+            } else if (2 == item.atype) {
+              tag = "【趣图】"
+            } else if (4 == item.atype) {
+              tag = "【动图】"
+            } else if (5 == item.atype) {
+              tag = "【长文】"
+            }
+            shareObj.title = tag + item.title;
           }
           if (item.imgurl) {
             shareObj.imageUrl = item.imgurl;
@@ -1607,12 +2049,25 @@ Page({
             shareObj.path = shareObj.path + "?share_artid=" + item.artid + "&share_atype=" + item.atype;
           }
 
-          if (item.zhaiyao) {
-            shareObj.path = shareObj.path + "&share_zhaiyao=" + encodeURIComponent(item.zhaiyao);
+          //去分享的图片，如果有单独配置，覆盖分享图片
+          if (item.xcximgurl) {
+            shareObj.imageUrl = decodeURIComponent(item.xcximgurl);
           }
+
+          //统计分享
+          app.reportUserShare(1, 0, item.artid);
+        }
+
+      } else if (options.from == 'menu') {
+
+        var arrPages = getCurrentPages();
+        if (arrPages.length > 0) {
+          app.reportUserShare(0, 2, arrPages[arrPages.length - 1].route);
         }
 
       }
+
+
     }
 
     return shareObj;
@@ -1626,11 +2081,6 @@ Page({
       url: "../tuijian/tuijian"
     })
   },
-
-
-
-  /**分享的点击 */
-  onShareClick: function() {},
 
 
   /**item前面的tag点击 */

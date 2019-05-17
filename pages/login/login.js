@@ -1,5 +1,5 @@
 // pages/login/login.js
-
+const Page = require('../../utils/alading/ald-stat.js').Page;
 //获取应用实例
 const app = getApp()
 
@@ -72,44 +72,15 @@ Page({
   //获取用户信息回调
   getUserInfoCallBack: function(res) {
 
-    // if (res.detail.errMsg == "getUserInfo:ok") {
-    //   app.globalData.userInfo = res.detail.userInfo;
-    //   //返回上一级关闭当前页面
-    //   wx.navigateBack({
-    //     delta: 1
-    //   })
+    if (res.detail.errMsg == "getUserInfo:ok") {
+      app.globalData.userInfo = res.detail.userInfo;
+      //返回上一级关闭当前页面
+      wx.navigateBack({
+        delta: 1
+      })
+      app.CheckLoginCallBack(app.globalData.loginCB, app.globalData.loginCBParams);
 
-    //   app.CheckLoginCallBack();
-
-    // },
-
-    //调用登录接口
-    // wx.login({
-    //   success: function (e) {
-
-    //     var code = e.code;
-    //     var rawData = encodeURIComponent(res.detail.rawData);
-    //     var signature = encodeURIComponent(res.detail.signature);
-    //     var encryptedData = encodeURIComponent(res.detail.encryptedData);
-    //     var iv = encodeURIComponent(res.detail.iv);
-    //     if (code) {
-
-    //       app.CheckLoginCallBack();
-
-    //       // app.thirdLogin(code, rawData, signature, encryptedData, iv, function(){
-    //       //   wx.redirectTo({
-    //       //     url: '../index/index'
-    //       //   })
-    //       // }, undefined);
-    //     }
-
-    //   },
-
-    //   fail: function (e) {
-    //     console.log(e);
-    //   }
-
-    // })
+    }
   }
 
 })

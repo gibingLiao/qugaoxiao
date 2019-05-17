@@ -1,29 +1,40 @@
 // pages/tuwendetail/tuwendetail.js
+const Page = require('../../utils/alading/ald-stat.js').Page;
+import sendcomment from '../template/sendcomment.js';
+
 var WxParse = require('../../utils/wxParse/wxParse.js');
 var emojiFn = require('../../utils/emoj.js');
 const app = getApp();
 
-Page({
+var systemInfo = wx.getSystemInfoSync();
 
+var timeout = undefined;
+
+Page({
+  ...sendcomment.options,
   /**
    * 页面的初始数据
    */
   data: {
+    ...sendcomment.data,
+    platform: systemInfo.platform,
     //文本内容
     dkcontent: "",
     //文章数据
     artdata: {},
     //评论数据
-    pldata: {},
+    pldata: {
+      items: []
+    },
     //artid
     artid: 0,
     //点赞的动画
     clickLikeAnimation: {},
     isAnimatingLike: false, //点赞动画是否正在执行
     isAnimatingPlLike: false, //是否正在执行评论点赞动画
-    isAnimatingCollection: false, //是否正在执行收藏动画
+    isRequestCollection: false, //是否正在请求收藏接口
     //scrollview底部占位的高度
-    zhanweiheight: 110,
+    zhanweiheight: 150,
 
     pagenum: 1, //加载页码
     isLoadingContent: false, //是否正在加载整体数据
@@ -37,12 +48,36 @@ Page({
 
     //是否展示登录覆盖的btn
     isShowBtnCover: true,
+
+    disableinput: false, //页面滚动的时候禁用掉输入框
+
   },
+
+  onPageScroll: function(event) {
+    //滚动中，禁用输入框
+    if (!this.data.disableinput) {
+      this.setData({
+        disableinput: true,
+      });
+    }
+    clearTimeout(timeout);
+    var that = this;
+    timeout = setTimeout(() => {
+      if (that.data.disableinput) {
+        that.setData({
+          disableinput: false,
+        });
+      }
+    }, 100);
+  },
+
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function(options) {
+    this.bindContext(this, systemInfo, emojiFn);
+
     this.data.artid = options.artid;
     this.data.dataIndex = options.dataindex;
     this.getContentData(false);
@@ -84,7 +119,7 @@ Page({
             if (i == tags.length - 1) {
               tags[i].TAG = decodeURIComponent(tags[i].TAG);
             } else {
-              tags[i].TAG = decodeURIComponent(tags[i].TAG + '   ');
+              tags[i].TAG = decodeURIComponent(tags[i].TAG);
             }
 
           }
@@ -97,18 +132,12 @@ Page({
           res.data.likepic = '../imgs/detail_btn_like.png';
         }
 
-        if ('1' == res.data.collectstatus) {
-          res.data.collctionpic = '../imgs/content_btn_collected.png';
-        } else {
-          res.data.collctionpic = '../imgs/content_btn_collect.png';
-        }
-
         that.setData({
           dkcontent: decodeURIComponent(res.data.content),
           artdata: res.data
         });
 
-        WxParse.wxParse('dkcontent', 'html', that.data.dkcontent, that, 5);
+        WxParse.wxParse('dkcontent', 'html', that.data.dkcontent, that, 26 * systemInfo.windowWidth / 750);
 
         //请求评论数据
         that.getPLData(isLoadmore);
@@ -148,9 +177,6 @@ Page({
       },
       header: {
         'content-type': 'application/json' // 默认值
-      },
-      complete: function() {
-        that.data.isLoadingPL = false;
       },
       success(res) {
         if (res.data.status != 0) {
@@ -206,13 +232,14 @@ Page({
 
         //评论数量
         that.setData({
-          plcount: that.data.pldata.items.length,
+          plcount: that.data.artdata.plcnt, //that.data.pldata.items.length,
         });
 
 
       },
       complete: function(res) {
         that.chechLogin();
+        that.data.isLoadingPL = false;
       }
     })
   },
@@ -311,12 +338,14 @@ Page({
         animation.opacity(0).scale(2, 2).step(); //修改透明度,放大
 
 
-        var artdata = that.data.artdata;
-        artdata.zanstatus = zanStatus;
-        artdata.zancnt = zanCount;
+        // var artdata = that.data.artdata;
+        // artdata.zanstatus = zanStatus;
+        // artdata.zancnt = zanCount;
 
         that.setData({
-          artdata: artdata,
+          ['artdata.zanstatus']: zanStatus,
+          ['artdata.zancnt']: zanCount,
+          ['artdata.likepic']: that.data.artdata.likepic,
           clickLikeAnimation: animation.export(), //点赞动画
           isAnimatingLike: true,
         });
@@ -468,9 +497,10 @@ Page({
    * 收藏的点击
    */
   onCollectionClick: function() {
-    if (this.data.isAnimatingCollection) {
+    if (this.data.isRequestCollection) {
       return;
     }
+    this.data.isRequestCollection = true;
     //请求点赞接口
     var that = this;
     //调用点赞接口
@@ -498,21 +528,9 @@ Page({
           that.data.artdata.collctionpic = '../imgs/content_btn_collected.png';
         }
 
-        //赋值动画
-        var animation = wx.createAnimation({
-          duration: 600,
-          timingFunction: 'ease'
-        })
-        animation.opacity(0).scale(2, 2).step(); //修改透明度,放大
-
-
-        var artdata = that.data.artdata;
-        artdata.collectstatus = collectionStatus;
 
         that.setData({
-          artdata: artdata,
-          clickCollectionAnimation: animation.export(), //点赞动画
-          isAnimatingCollection: true,
+          ['artdata.collectstatus']: collectionStatus,
         });
         //拿到栈页面
         var arrPages = getCurrentPages();
@@ -528,37 +546,18 @@ Page({
       },
       complete: function(res) {
         that.chechLogin();
+        that.data.isRequestCollection = false;
       }
     });
   },
 
-
-  //收藏动画结束
-  onCollectionAnimationEnd: function() {
-    //这个动画会执行两次，每个动画执行完毕阶段会进一次，一个放大，一个渐变，会进两次回调
-    if (!this.data.isAnimatingCollection) {
-      return;
-    }
-
-    //赋值动画
-    var animation = wx.createAnimation({
-      duration: 0,
-    })
-    animation.opacity(1).scale(1, 1).step(); //修改透明度,放大
-
-    //清除动画
-    this.setData({
-      clickCollectionAnimation: animation.export(), //收藏动画
-      isAnimatingCollection: false, //执行收藏动画完毕
-    });
-  },
 
 
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady: function() {
-
+    this.toast = this.selectComponent("#toast");
   },
 
   /**
@@ -625,13 +624,27 @@ Page({
     // 来自页面内的按钮的转发
     if (options) {
       if (this.data.artdata.title) {
-        shareObj.title = this.data.artdata.title;
+        shareObj.title = "【长文】" + this.data.artdata.title;
       }
       if (this.data.artdata.imgurl) {
         shareObj.imageUrl = this.data.artdata.imgurl;
       }
       if (this.data.artid && this.data.artdata.atype) {
         shareObj.path = shareObj.path + "?share_artid=" + this.data.artid + "&share_atype=" + this.data.artdata.atype;
+      }
+
+      //去分享的图片，如果有单独配置，覆盖分享图片
+      if (this.data.artdata.xcximgurl) {
+        shareObj.imageUrl = decodeURIComponent(this.data.artdata.xcximgurl);
+      }
+
+
+      //统计分享
+      if (options.from == 'button') {
+        app.reportUserShare(1, 1, this.data.artid);
+
+      } else if (options.from == 'menu') {
+        app.reportUserShare(1, 2, this.data.artid);
       }
 
     }
@@ -655,12 +668,15 @@ Page({
       } else if (type == 3) {
         //收藏需要登录
         app.CheckLoginCallBack(this.onCollectionClick);
+      } else if (type == 4) {
+        //评论需要登录
+        app.CheckLoginCallBack(this.chechLogin, type);
       }
     }
   },
 
   /**校验覆盖登录按钮 */
-  chechLogin: function() {
+  chechLogin: function(type) {
     if (!app.globalData.requestParams.token || 0 == app.globalData.requestParams.token) {
       this.setData({
         isShowBtnCover: true,
@@ -670,7 +686,14 @@ Page({
       this.setData({
         isShowBtnCover: false,
       });
+      if (type == 4) {
+        //拉起键盘
+        this.setData({
+          isshowkeyboard: true,
+          inputFocus: true,
+        });
 
+      }
     }
 
 

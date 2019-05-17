@@ -2,9 +2,14 @@
 
 // var loginTemplate = require('/pages/template/logintemplate.js');
 
+const App = require('./utils/alading/ald-stat.js').App;
 var utilMd5 = require('/utils/md5.js');
 App({
   globalData: {
+
+    //session过期后，所有需要登陆的方法体和形参
+    arrSessionTimeoutLoginCallbackFunctionParm: [],
+
     userInfo: {},
     // loginCB: undefined, //登录回调
     // loginCBParams: undefined, //登录参数
@@ -12,7 +17,7 @@ App({
     requestParams: {
       //基础参数拼接
       t: 3, //小程序专用
-      v: '1.0.1', //版本号
+      v: '1.0.2', //版本号
       deviceid: '', //用户识别吗，随机生成保存本地，统计一定基础的日活，激活
       phonemodel: '',
       osversion: '',
@@ -39,7 +44,7 @@ App({
 
     } catch (e) {}
 
-  
+
   },
 
   // 对象转化为map
@@ -166,7 +171,7 @@ App({
           data: data,
           fail: fail,
           success: function(res) {
-
+            // console.log(res.data);
             //服务端用户信息缓存已丢失，则重新发起登录请求
             if (res.data.status == 1000) {
               that.WXLogin(that.requestWithSessionId, object);
@@ -188,14 +193,85 @@ App({
       },
       fail: function() {
         //登录态过期
+
         console.log('登录态过期');
 
-        that.WXLogin(that.requestWithSessionId, object);
+        // that.WXLogin(that.requestWithSessionId, object);
+        //登录失效后，去请求微信登录接口，确保多个请求，只有一个正在登录
+        if (that.globalData.arrSessionTimeoutLoginCallbackFunctionParm.length == 0) {
+          that.globalData.arrSessionTimeoutLoginCallbackFunctionParm.push({
+            cb: that.requestWithSessionId,
+            cbparam: object
+          });
+          that.WXLogin(that.sessionTimeoutLoginCallBack, undefined);
+        } else {
+          that.globalData.arrSessionTimeoutLoginCallbackFunctionParm.push({
+            cb: that.requestWithSessionId,
+            cbparam: object
+          });
+        }
+
 
       }
     })
 
+  },
 
+
+  /**统计分享调用，用户点击分享之后调用
+   * shareart:0 -- 分享推荐  1--分享文章
+   * sharetype ： shareart为0时   0-推荐页分享 1-推荐浮层分享 2-各页面右上角分享
+   *              shareart为1时   0-列表按钮分享 1-详情页按钮分享 2-详情页右上角分享
+   * parms: shareart为0时  parms是 操作的页面路径
+   *        shareart为1时  parms是 文章ID
+   */
+  reportUserShare: function(shareart, sharetype, parms) {
+    var url;
+    if (shareart == 0) {
+      //分享推荐
+      url = 'https://app.xiaogechui.cn/xcx/qgx/qgx.ashx?action=AddShareTJLog&sharetype=' + sharetype + '&page=' + encodeURIComponent(parms);
+    } else if (shareart == 1) {
+      //分享文章类型
+      url = 'https://app.xiaogechui.cn/xcx/qgx/qgx.ashx?action=AddShareArtLog&sharetype=' + sharetype + '&artid=' + encodeURIComponent(parms);
+    }
+
+    if (!url) {
+      return;
+    }
+
+    this.requestWithSessionId({
+      url: url,
+      data: {},
+      header: {
+        'content-type': 'application/json' // 默认值
+      },
+      success: function(res) {
+        console.log(res.data)
+      },
+      complete: function(res) {}
+    });
+
+  },
+
+
+
+  //登录态过期后去登录成功之后的回调方法
+  sessionTimeoutLoginCallBack: function() {
+    //将需要登陆的接口回调，全部调用一遍，然后清空数组\
+
+    while (this.globalData.arrSessionTimeoutLoginCallbackFunctionParm.length > 0) {
+      var cb = this.globalData.arrSessionTimeoutLoginCallbackFunctionParm[0].cb;
+      var cbparam = this.globalData.arrSessionTimeoutLoginCallbackFunctionParm[0].cbparam;
+
+      if (cbparam) {
+        typeof cb == "function" && cb(cbparam);
+      } else {
+        typeof cb == "function" && cb();
+      }
+      //移除第一个元素
+      this.globalData.arrSessionTimeoutLoginCallbackFunctionParm.shift();
+      // console.log(this.globalData.arrSessionTimeoutLoginCallbackFunctionParm.length);
+    }
   },
 
   //获取本地thirdSessionId
@@ -235,6 +311,7 @@ App({
                   // 可以将 res 发送给后台解码出 unionId
                   that.globalData.userInfo = res.userInfo;
 
+
                   // console.log(res);
                   // console.log(e);
 
@@ -254,11 +331,11 @@ App({
               })
             } else {
               // 未授权，引导去登录页
-              // that.globalData.loginCB = cb;
-              // that.globalData.loginCBParams = cbparam;
-              // wx.navigateTo({
-              //   url: '../login/login'
-              // })
+              that.globalData.loginCB = cb;
+              that.globalData.loginCBParams = cbparam;
+              wx.navigateTo({
+                url: '../login/login'
+              })
               console.log("漏掉了登录按钮");
 
             }
@@ -268,7 +345,16 @@ App({
             wx.showModal({
               title: '提示',
               content: '授权失败！请检查网络'
-            })
+            });
+            //回调接口完成，避免接口中断无响应
+            if (cbparam && cbparam.complete && typeof cbparam.complete == "function") {
+              cbparam.complete({
+                status: -102,
+                msg: '获取微信授权失败'
+              });
+            }
+
+
           }
         })
 
@@ -276,13 +362,20 @@ App({
 
       fail: function(e) {
         // console.log(e + "  ....");
+        //回调接口完成，避免接口中断无响应
+        if (cbparam && cbparam.complete && typeof cbparam.complete == "function") {
+          cbparam.complete({
+            status: -101,
+            msg: '微信登录失败'
+          });
+        }
       }
 
     })
 
   },
 
-  CheckLoginCallBack: function (loginCB, loginCBParams) {
+  CheckLoginCallBack: function(loginCB, loginCBParams) {
 
     this.WXLogin(loginCB, loginCBParams);
 
@@ -315,8 +408,8 @@ App({
         // console.log(res.data);
         if (res.data.status != 0) {
           wx.showModal({
-            title: '提示',
-            content: '登录失败！请稍后再试'
+            title: '提示' + res.data.status,
+            content: '登录失败！请稍后再试' + res.data.msg
           })
           return;
         }

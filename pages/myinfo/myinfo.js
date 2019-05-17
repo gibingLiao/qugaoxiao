@@ -1,5 +1,5 @@
 // pages/myinfo/myinfo.js
-
+const Page = require('../../utils/alading/ald-stat.js').Page;
 const app = getApp();
 
 Page({
@@ -89,7 +89,8 @@ Page({
           ['userinfo.headurl']: decodeURIComponent(res.data.headurl),
         });
 
-
+        app.globalData.userInfo.avatarUrl = decodeURIComponent(res.data.headurl);
+        app.globalData.userInfo.nickName = decodeURIComponent(res.data.nickname);
       }
     });
   },
@@ -103,7 +104,7 @@ Page({
     if (res.detail.errMsg == "getUserInfo:ok") {
       var type = res.currentTarget.dataset.type
       app.globalData.userInfo = res.detail.userInfo;
-     
+
       app.CheckLoginCallBack(this.loadData, type);
     }
   },
@@ -173,7 +174,7 @@ Page({
   },
 
   /**意见反馈的点击 */
-  onSuggestionClick:function(){
+  onSuggestionClick: function() {
     //跳转意见页面
     wx.navigateTo({
       url: "../suggestion/suggestion"
@@ -212,7 +213,13 @@ Page({
   /**
    * 用户点击右上角分享
    */
-  onShareAppMessage: function() {
+  onShareAppMessage: function(options) {
+    if (options && options.from == 'menu') {
+      var arrPages = getCurrentPages();
+      if (arrPages.length > 0) {
+        app.reportUserShare(0, 2, arrPages[arrPages.length - 1].route);
+      }
 
+    }
   }
 })

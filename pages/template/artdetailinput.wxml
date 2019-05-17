@@ -1,5 +1,8 @@
 <!--文章详情的输入框-->
 <template name="plinput">
+  <!--  catchtouchmove="preventD" ||inputFocus  bindtouchstart style='height:{{touchhidden}}px'-->
+  <view class='container-pl-touch-hidden' wx:if="{{isshowenmoji}}" bindtouchstart="onTouchHiddenEmoji"></view>
+
   <!--底部评论框-->
   <view class='container-pl-input'>
 
@@ -8,56 +11,68 @@
 
     <!--评论输入框 -->
     <view class='pl-input'>
-      <input cursor-spacing='0' class='input' placeholder="神评论走一发" placeholder-class="place-holder" bindfocus="onKeyBoardFocus" bindblur="onKeyBoardHidden" focus='{{inputFocus}}' adjust-position="true" bindinput="bindinput" value='{{inputvalue}}'/>
+      <textarea cursor-spacing='0' style="padding-top:{{platform=='ios'?10:20}}rpx" class='input' placeholder="神评论走一发" placeholder-class="place-holder" bindfocus="onKeyBoardFocus" bindblur="onKeyBoardHidden" focus='{{inputFocus}}' adjust-position="{{false}}"
+        bindinput="bindinput" value='{{inputvalue}}' fixed="true" show-confirm-bar="{{false}}" wx:if="{{!isShowBtnCover}}" disabled='{{disableinput}}' />
+      <text class='text-input-zhanwei' wx:else>神评论走一发</text>
 
 
       <!--评论的条数-->
-      <view class='container-pl-count' wx:if="{{!isshowkeyboard}}">
+      <!-- <view class='container-pl-count' wx:if="{{!isshowkeyboard}}">
         <image class='img-pl-count' src='../imgs/content_btn_comment.png'></image>
         <text class='text-pl-count'>{{plcount}}</text>
-      </view>
+      </view> -->
+
+
+      <!--投诉按钮-->
+      <!-- <view class='container-collection' bindtap='onJbClick' wx:if="{{!isshowkeyboard}}">
+        <image class='img-shoucang' src="../imgs/jb.png" />
+      </view> -->
 
       <!--收藏按钮-->
-      <view class='container-collection' bindtap='onCollectionClick' wx:if="{{!isshowkeyboard}}">
+      <!-- <view class='container-collection' bindtap='onCollectionClick' wx:if="{{!isshowkeyboard}}">
         <image class='img-shoucang' src="{{collctionpic}}" wx:if="{{isAnimatingCollection}}" />
         <image class='img-shoucang' src="{{collctionpic}}" animation="{{clickCollectionAnimation}}" bindtransitionend="onCollectionAnimationEnd" />
         <button wx:if="{{isShowBtnCover}}" class='collection-login-btn' catchtap='loginCatch' data-type='3' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo' />
-      </view>
+      </view> -->
 
       <!--分享按钮-->
-      <button class='img-share' src='../imgs/content_btn_sharel.png' open-type='share' plain="true" wx:if="{{!isshowkeyboard}}" />
+      <!-- <button class='img-share' src='../imgs/content_btn_sharel.png' open-type='share' plain="true" wx:if="{{!isshowkeyboard}}" /> -->
 
       <!--表情键-->
-      <view class='container-emoji' wx:if="{{isshowkeyboard}}" catchtap='onEmojiClick'>
+      <!-- wx:if="{{isshowkeyboard}}" -->
+      <view class='container-emoji' catchtap='onEmojiClick'>
         <image class='img-emoji' src='../imgs/ic_emotion.png'></image>
       </view>
 
       <!--发送按钮-->
-      <text class='text-send' wx:if="{{isshowkeyboard}}">发送</text>
+      <text catchtap='onClickSend' class='text-send' wx:if="{{isshowkeyboard}}">发送</text>
+      <!--发送覆盖一个登陆按钮-->
+      <button class='btn-send-comment' wx:if="{{isShowBtnCover}}" catchtap='loginCatch' data-type='4' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo'></button>
 
 
     </view>
 
     <!--底部的表情-->
 
-    <block wx:if="{{isshowenmoji}}">
-      <view class='container-enmoji' style='height:{{keyboardheight}}px'>
-        <swiper current='curindex' style='height:{{keyboardheight*0.9}}px' class='swiper-box' indicator-dots='true' indicator-color='blue' indicator-active-color='yellow'>
-          <block wx:for="{{enmojipages}}" wx:for-item="page" wx:key="">
-            <swiper-item>
-              <block wx:for="{{enmojis}}" wx:for-index="idx" wx:key="index">
-                <view catchtap='onEmojiSelect' data-index='{{idx}}' style='height:{{emojiH}}px;width:{{emojiW}}px' class='container-emoji-item' wx:if="{{idx>=page*21 && idx<(page+1)*21}}">
-                  <image style='height:{{emojiH/2>emojiW/2?emojiW/2:emojiH/2}}px;width:{{emojiH/2>emojiW/2?emojiW/2:emojiH/2}}px;margin-top:{{(emojiH-(emojiH/2>emojiW/2?emojiW/2:emojiH/2))/2}}px;margin-left:{{(emojiW-(emojiH/2>emojiW/2?emojiW/2:emojiH/2))/2}}px ' src="../../utils/wxParse/emojis/{{enmojis[idx].name}}"
-                    mode='aspectFill' />
-                </view>
-              </block>
-            </swiper-item>
-          </block>
-        </swiper>
+    <view class='container-emojizhanwei' style='height:{{keyboardheight}}px;background:white' wx:if="{{isshowenmoji||inputFocus}}">
 
-      </view>
-    </block>
-
+      <block wx:if="{{isshowenmoji}}">
+        <view class='container-enmoji' style='height:{{keyboardheight}}px;'>
+          <swiper current='curindex' style='height:{{keyboardheight*0.9}}px' class='swiper-box' indicator-dots='{{true}}' indicator-color='#e6e6e6' indicator-active-color='#9a9a9a'>
+            <block wx:for="{{enmojipages}}" wx:for-item="page" wx:key="">
+              <swiper-item>
+                <block wx:for="{{enmojis}}" wx:for-index="idx" wx:key="index">
+                  <view catchtap='onEmojiSelect' data-index='{{idx}}' style='height:{{emojiH}}px;width:{{emojiW}}px;' class='container-emoji-item' wx:if="{{idx>=page*21 && idx<(page+1)*21}}">
+                    <image style='height:{{emojiH/2>emojiW/2?emojiW/2:emojiH/2}}px;width:{{emojiH/2>emojiW/2?emojiW/2:emojiH/2}}px;margin-top:{{(emojiH-(emojiH/2>emojiW/2?emojiW/2:emojiH/2))/2}}px;margin-left:{{(emojiW-(emojiH/2>emojiW/2?emojiW/2:emojiH/2))/2}}px ' src="../imgs/emoji/{{enmojis[idx].name}}"
+                      mode='aspectFill' />
+                  </view>
+                </block>
+              </swiper-item>
+            </block>
+          </swiper>
+        </view>
+      </block>
+    </view>
 
   </view>
 </template>

@@ -3,7 +3,7 @@
 
 
 <!--pages/picdetail/picdetail.wxml-->
-<scroll-view class='container-scroll' scroll-y='true' lower-threshold="100" bindscrolltolower="LoadNextPage" bindscroll="ScrollViewDidScroll">
+<view class='container-scroll'>
   <!--标题-->
   <view class='container-title' wx:if="{{artdata.title}}">
     <text class='text-title'>{{artdata.title}}</text>
@@ -26,10 +26,10 @@
   <!--下面的标签，评论和输入-->
   <template is="art-gongyong" data="{{artdetaildata:artdata,pldetaildata:pldata,zhanweiheight:zhanweiheight,clickLikeAnimation:clickLikeAnimation,isAnimatingLike:isAnimatingLike,isAnimatingPlLike:isAnimatingPlLike,isShowBtnCover:isShowBtnCover}}" />
 
-</scroll-view>
+</view>
 
 <!--输入框-->
-<template is="plinput" data="{{isshowenmoji:isshowenmoji,enmojis:enmojis,enmojipages:enmojipages,plcount:plcount,collctionpic:artdata.collctionpic,clickCollectionAnimation:clickCollectionAnimation,isAnimatingCollection:isAnimatingCollection,isShowBtnCover:isShowBtnCover,isshowkeyboard:isshowkeyboard,keyboardheight:keyboardheight,inputFocus:inputFocus,emojiH:emojiH,emojiW:emojiW,inputvalue:inputvalue}}"
+<template is="plinput" data="{{isshowenmoji:isshowenmoji,enmojis:enmojis,enmojipages:enmojipages,isShowBtnCover:isShowBtnCover,isshowkeyboard:isshowkeyboard,keyboardheight:keyboardheight,inputFocus:inputFocus,emojiH:emojiH,emojiW:emojiW,inputvalue:inputvalue,platform:platform,disableinput:disableinput}}"
 />
 
 <toast id='toast'>

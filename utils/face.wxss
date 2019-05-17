@@ -330,6 +330,8 @@
 .text-pl{
    font-size: 26rpx;
    color: #323232;
+   word-wrap : break-word;
+   word-break:break-all;
 }
 
 /* .plcontent {

@@ -1,19 +1,28 @@
 // pages/picdetail/picdetail.js
+const Page = require('../../utils/alading/ald-stat.js').Page;
+import sendcomment from '../template/sendcomment.js'
+
 var emojiFn = require('../../utils/emoj.js');
 const app = getApp();
 var systemInfo = wx.getSystemInfoSync();
-Page({
 
+var timeout = undefined;
+
+Page({
+  ...sendcomment.options,
   /**
    * 页面的初始数据
    */
   data: {
 
     // isshowenmoji: true,
-    // keyboardheight: 500,
-    // emojiH: 500 * 0.8 / 3,
+    // keyboardheight: 300,
+    // emojiH: 300 * 0.8 / 3,
     // emojiW: systemInfo.windowWidth / 7,
 
+
+    ...sendcomment.data,
+    platform: systemInfo.platform,
     //页面的数据源
     artdata: {
 
@@ -21,16 +30,18 @@ Page({
     //图片撑满样式
     imageStyle: 'pic-gif-style1',
     //评论的数据源
-    pldata: {},
+    pldata: {
+      items: []
+    },
     //是否展示enmoji
     isshowenmoji: false,
     //scrollview底部占位的高度
-    zhanweiheight: 110,
+    zhanweiheight: 150,
     //点赞的动画
     clickLikeAnimation: {},
     isAnimatingLike: false, //点赞动画是否正在执行
     isAnimatingPlLike: false, //是否正在执行评论点赞动画
-    isAnimatingCollection: false, //是否正在执行收藏动画
+    isRequestCollection: false, //是否正在请求收藏接口
 
     showimg: "", //图片上方gif展示的数据字段
     showaddress: false, //是否正在展示gif，加载成功再展示，防止闪烁
@@ -48,387 +59,37 @@ Page({
     //是否展示登录覆盖的btn
     isShowBtnCover: true,
 
-    //表情的集合
-    enmojis: [
-
-      {
-        index: 0,
-        name: "00.gif",
-        content: '微笑',
-      },
-      {
-        index: 1,
-        name: "01.gif",
-        content: '撇嘴',
-      },
-      {
-        index: 2,
-        name: "02.gif",
-        content: '色',
-      },
-      {
-        index: 3,
-        name: "03.gif",
-        content: '发呆',
-
-      },
-      {
-        index: 4,
-        name: "04.gif",
-        content: '得意',
-      },
-      {
-        index: 5,
-        name: "06.gif",
-        content: '害羞',
-      },
-      {
-        index: 6,
-        name: "08.gif",
-        content: '睡',
-      },
-      {
-        index: 7,
-        name: "09.gif",
-        content: '流泪',
-      },
-      {
-        index: 8,
-        name: "10.gif",
-        content: '尴尬',
-      },
-      {
-        index: 9,
-        name: "11.gif",
-        content: '发火',
-      },
-      {
-        index: 10,
-        name: "12.gif",
-        content: '调皮',
-      },
-      {
-        index: 11,
-        name: "13.gif",
-        content: '呲牙',
-      },
-      {
-        index: 12,
-        name: "14.gif",
-        content: '惊讶',
-      },
-      {
-        index: 13,
-        name: "15.gif",
-        content: '难过',
-      },
-      {
-        index: 14,
-        name: "16.gif",
-        content: '酷',
-      },
-
-      {
-        index: 15,
-        name: "17.gif",
-        content: '冷汗',
-      },
-      {
-        index: 16,
-        name: "18.gif",
-        content: '抓狂',
-      },
-      {
-        index: 17,
-        name: "01.gif",
-        content: '吐',
-      },
-      {
-        index: 18,
-        name: "20.gif",
-        content: '偷笑',
-      },
-      {
-        index: 19,
-        name: "21.gif",
-        content: '可爱',
-      },
-      {
-        index: 20,
-        name: "22.gif",
-        content: '白眼',
-      },
-      {
-        index: 21,
-        name: "23.gif",
-        content: '傲慢',
-      },
-      {
-        index: 22,
-        name: "26.gif",
-        content: '惊恐',
-      },
-      {
-        index: 23,
-        name: "27.gif",
-        content: '汗',
-      },
-
-      {
-        index: 24,
-        name: "28.gif",
-        content: '憨笑',
-      },
-      {
-        index: 25,
-        name: "29.gif",
-        content: '大兵',
-      },
-      {
-        index: 26,
-        name: "30.gif",
-        content: '奋斗',
-      },
-      {
-        index: 27,
-        name: "32.gif",
-        content: '疑问',
-      },
-      {
-        index: 28,
-        name: "33.gif",
-        content: '嘘',
-      },
-      {
-        index: 29,
-        name: "34.gif",
-        content: '晕',
-      },
-      {
-        index: 30,
-        name: "36.gif",
-        content: '衰',
-      },
-      {
-        index: 31,
-        name: "38.gif",
-        content: '打你',
-      },
-      {
-        index: 32,
-        name: "39.gif",
-        content: '拜拜',
-      },
-      {
-        index: 33,
-        name: "40.gif",
-        content: '擦汗',
-      },
-      {
-        index: 34,
-        name: "44.gif",
-        content: '坏笑',
-      },
-      {
-        index: 35,
-        name: "46.gif",
-        content: '右哼哼',
-      },
-      {
-        index: 36,
-        name: "48.gif",
-        content: '鄙视',
-      },
-      {
-        index: 37,
-        name: "49.gif",
-        content: '委屈',
-      },
-      {
-        index: 38,
-        name: "50.gif",
-        content: '快哭了',
-      },
-      {
-        index: 39,
-        name: "51.gif",
-        content: '奸笑',
-      },
-      {
-        index: 40,
-        name: "52.gif",
-        content: '亲亲',
-      },
-      {
-        index: 41,
-        name: "54.gif",
-        content: '拜托',
-      },
-      {
-        index: 42,
-        name: "55.gif",
-        content: '菜刀',
-      },
-      {
-        index: 43,
-        name: "56.gif",
-        content: '西瓜',
-      },
-      {
-        index: 44,
-        name: "57.gif",
-        content: '啤酒',
-      },
-      {
-        index: 45,
-        name: "60.gif",
-        content: '咖啡',
-      },
-      {
-        index: 46,
-        name: "61.gif",
-        content: '米饭',
-      },
-      {
-        index: 47,
-        name: "62.gif",
-        content: '猪头',
-      },
-      {
-        index: 48,
-        name: "63.gif",
-        content: '玫瑰',
-      },
-      {
-        index: 49,
-        name: "64.gif",
-        content: '枯萎',
-      },
-      {
-        index: 50,
-        name: "66.gif",
-        content: '心',
-      },
-      {
-        index: 51,
-        name: "68.gif",
-        content: '蛋糕',
-      },
-      {
-        index: 52,
-        name: "70.gif",
-        content: '炸弹',
-      },
-      {
-        index: 53,
-        name: "71.gif",
-        content: '匕首',
-      },
-      {
-        index: 54,
-        name: "73.gif",
-        content: '瓢虫',
-      },
-      {
-        index: 55,
-        name: "74.gif",
-        content: '屎',
-      },
-      {
-        index: 56,
-        name: "75.gif",
-        content: '月亮',
-      },
-      {
-        index: 57,
-        name: "78.gif",
-        content: '抱抱',
-      },
-      {
-        index: 58,
-        name: "79.gif",
-        content: '强',
-      },
-      {
-        index: 59,
-        name: "80.gif",
-        content: '垃圾',
-      },
-      {
-        index: 60,
-        name: "81.gif",
-        content: '握手',
-      },
-      {
-        index: 61,
-        name: "82.gif",
-        content: '胜利',
-      },
-      {
-        index: 62,
-        name: "83.gif",
-        content: '抱拳',
-      },
-      {
-        index: 63,
-        name: "84.gif",
-        content: '勾引',
-      },
-      {
-        index: 64,
-        name: "85.gif",
-        content: '拳头',
-      },
-      {
-        index: 65,
-        name: "86.gif",
-        content: '菜',
-      },
-      // 
-      // 
-      // 
-      // '': '',
-      {
-        index: 66,
-        name: "87.gif",
-        content: '手势',
-      },
-      {
-        index: 67,
-        name: "89.gif",
-        content: '哦了',
-      },
-      {
-        index: 68,
-        name: "90.gif",
-        content: '爱情',
-      },
-      {
-        index: 69,
-        name: "91.gif",
-        content: '企鹅亲',
-      },
-      {
-        index: 70,
-        name: "93.gif",
-        content: '发抖',
-
-      },
-      {
-        index: 71,
-        name: "116.gif",
-        content: '嘴唇',
-      }
-
-    ],
-    enmojipages: [0, 1, 2, 3],
     artid: 0,
+
+    disableinput: false, //页面滚动的时候禁用掉输入框
   },
+
+
+  onPageScroll: function (event) {
+    //滚动中，禁用输入框
+    if (!this.data.disableinput) {
+      this.setData({
+        disableinput: true,
+      });
+    }
+    clearTimeout(timeout);
+    var that = this;
+    timeout = setTimeout(() => {
+      if (that.data.disableinput) {
+        that.setData({
+          disableinput: false,
+        });
+      }
+    }, 100);
+  },
+
+
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function(options) {
+    this.bindContext(this, systemInfo, emojiFn);
     this.data.artid = options.artid;
     this.data.dataIndex = options.dataindex;
     this.getContentData(false);
@@ -477,7 +138,7 @@ Page({
             if (i == tags.length - 1) {
               tags[i].TAG = decodeURIComponent(tags[i].TAG);
             } else {
-              tags[i].TAG = decodeURIComponent(tags[i].TAG + '   ');
+              tags[i].TAG = decodeURIComponent(tags[i].TAG );
             }
 
           }
@@ -488,6 +149,7 @@ Page({
         var imgW = res.data.imgw;
         var imgH = res.data.imgh;
         var scale = imgW / imgH;
+
         var imgfitw = res.data.imgfitw
         if (scale < 0.8 && 1 != imgfitw) {
           //将图片宽度设置成60%，样式2
@@ -503,21 +165,40 @@ Page({
           res.data.likepic = '../imgs/detail_btn_like.png';
         }
 
-        if ('1' == res.data.collectstatus) {
-          res.data.collctionpic = '../imgs/content_btn_collected.png';
-        } else {
-          res.data.collctionpic = '../imgs/content_btn_collect.png';
-        }
 
         that.setData({
           artdata: res.data
         });
 
+
+        //播放gif
+        if (that.data.artdata.atype == '4') {
+          var showimg = "";
+          if (!that.data.artdata.showaddress || !that.data.artdata.showimg || that.data.artdata.showimg == that.data.artdata.imgurl) {
+            //开始播放gif
+            showimg = that.data.artdata.attadress;
+          }
+          that.data.artdata.showaddress = false;
+          that.data.artdata.showimg = showimg;
+          //是否正在加载中,如果此时需要加载gif，点击显示加载状态，否则不显示加载状态
+          var isloadinggif = false;
+          if (showimg) {
+            isloadinggif = true;
+          }
+          that.data.artdata.isloadinggif = isloadinggif;
+          that.setData({
+            artdata: that.data.artdata,
+          });
+        }
+
+
+
+
         //请求评论数据
         that.getPLData(isLoadmore);
 
       },
-      complete: function() {
+      complete: function(res) {
         that.data.isLoadingContent = false;
         wx.stopPullDownRefresh();
         that.chechLogin();
@@ -552,14 +233,13 @@ Page({
       header: {
         'content-type': 'application/json' // 默认值
       },
-      complete: function() {
-        that.data.isLoadingPL = false;
-      },
+
       success(res) {
         if (res.data.status != 0) {
-
           return;
         }
+        console.log(res.data);
+
         that.data.stime = res.data.stime;
         //解码操作
         var items = res.data.items;
@@ -609,13 +289,14 @@ Page({
 
         //评论数量
         that.setData({
-          plcount: that.data.pldata.items.length,
+          plcount: that.data.artdata.plcnt, //that.data.pldata.items.length,
         });
 
 
       },
       complete: function(res) {
         that.chechLogin();
+        that.data.isLoadingPL = false;
       }
     })
   },
@@ -713,12 +394,10 @@ Page({
         animation.opacity(0).scale(2, 2).step(); //修改透明度,放大
 
 
-        var artdata = that.data.artdata;
-        artdata.zanstatus = zanStatus;
-        artdata.zancnt = zanCount;
-
         that.setData({
-          artdata: artdata,
+          ['artdata.zanstatus']: zanStatus,
+          ['artdata.zancnt']: zanCount,
+          ['artdata.likepic']: that.data.artdata.likepic,
           clickLikeAnimation: animation.export(), //点赞动画
           isAnimatingLike: true,
         });
@@ -772,9 +451,10 @@ Page({
    */
   onCollectionClick: function() {
 
-    if (this.data.isAnimatingCollection) {
+    if (this.data.isRequestCollection) {
       return;
     }
+    this.data.isRequestCollection = true;
     //请求点赞接口
     var that = this;
     //调用点赞接口
@@ -802,21 +482,11 @@ Page({
           that.data.artdata.collctionpic = '../imgs/content_btn_collected.png';
         }
 
-        //赋值动画
-        var animation = wx.createAnimation({
-          duration: 600,
-          timingFunction: 'ease'
-        })
-        animation.opacity(0).scale(2, 2).step(); //修改透明度,放大
-
-
-        var artdata = that.data.artdata;
-        artdata.collectstatus = collectionStatus;
+        // var artdata = that.data.artdata;
+        // artdata.collectstatus = collectionStatus;
 
         that.setData({
-          artdata: artdata,
-          clickCollectionAnimation: animation.export(), //点赞动画
-          isAnimatingCollection: true,
+          ['artdata.collectstatus']: collectionStatus,
         });
         //拿到栈页面
         var arrPages = getCurrentPages();
@@ -832,31 +502,12 @@ Page({
       },
       complete: function(res) {
         that.chechLogin();
+        that.data.isRequestCollection = false;
       }
     });
 
   },
 
-
-  //收藏动画结束
-  onCollectionAnimationEnd: function() {
-    //这个动画会执行两次，每个动画执行完毕阶段会进一次，一个放大，一个渐变，会进两次回调
-    if (!this.data.isAnimatingCollection) {
-      return;
-    }
-
-    //赋值动画
-    var animation = wx.createAnimation({
-      duration: 0,
-    })
-    animation.opacity(1).scale(1, 1).step(); //修改透明度,放大
-
-    //清除动画
-    this.setData({
-      clickCollectionAnimation: animation.export(), //收藏动画
-      isAnimatingCollection: false, //执行收藏动画完毕
-    });
-  },
 
 
 
@@ -967,7 +618,6 @@ Page({
   onPicClick: function(event) {
 
     var atype = this.data.artdata.atype;
-    console.log(this.data.artdata);
 
     if ('4' == atype) {
       //播放与暂停gif
@@ -979,16 +629,20 @@ Page({
         //暂停gif
         showimg = "";
       }
-      this.data.artdata.showaddress = false;
-      this.data.artdata.showimg = showimg;
+
+      // this.data.artdata.showaddress = false;
+      // this.data.artdata.showimg = showimg;
       //是否正在加载中,如果此时需要加载gif，点击显示加载状态，否则不显示加载状态
       var isloadinggif = false;
       if (showimg) {
         isloadinggif = true;
       }
-      this.data.artdata.isloadinggif = isloadinggif;
+      // this.data.artdata.isloadinggif = isloadinggif;
       this.setData({
-        artdata: this.data.artdata,
+        ['artdata.showaddress']: false,
+        ['artdata.showimg']: showimg,
+        ['artdata.isloadinggif']: isloadinggif,
+        // artdata: this.data.artdata,
       });
     } else {
       //查看大图
@@ -1102,10 +756,17 @@ Page({
 
     // 来自页面内的按钮的转发
     if (options) {
-      console.log(options.from);
+      // console.log(options.from);
       // if (options.from == 'button') {
       if (this.data.artdata.title) {
-        shareObj.title = this.data.artdata.title;
+
+        if (2 == this.data.artdata.atype) {
+          shareObj.title = "【趣图】" + this.data.artdata.title;
+        } else {
+          shareObj.title = "【动图】" + this.data.artdata.title;
+        }
+
+
       }
       if (this.data.artdata.imgurl) {
         shareObj.imageUrl = this.data.artdata.imgurl;
@@ -1114,6 +775,22 @@ Page({
       if (this.data.artid && this.data.artdata.atype) {
         shareObj.path = shareObj.path + "?share_artid=" + this.data.artid + "&share_atype=" + this.data.artdata.atype;
       }
+
+      //去分享的图片，如果有单独配置，覆盖分享图片
+      if (this.data.artdata.xcximgurl) {
+        shareObj.imageUrl = decodeURIComponent(this.data.artdata.xcximgurl);
+      }
+
+
+      //统计分享
+      if (options.from == 'button') {
+        app.reportUserShare(1, 1, this.data.artid);
+
+      } else if (options.from == 'menu') {
+        app.reportUserShare(1, 2, this.data.artid);
+      }
+
+
     }
 
     return shareObj;
@@ -1135,12 +812,15 @@ Page({
       } else if (type == 3) {
         //收藏需要登录
         app.CheckLoginCallBack(this.onCollectionClick);
+      } else if (type == 4) {
+        //评论需要登录
+        app.CheckLoginCallBack(this.chechLogin, type);
       }
     }
   },
 
   /**校验覆盖登录按钮 */
-  chechLogin: function() {
+  chechLogin: function(type) {
     if (!app.globalData.requestParams.token || 0 == app.globalData.requestParams.token) {
       this.setData({
         isShowBtnCover: true,
@@ -1150,106 +830,231 @@ Page({
       this.setData({
         isShowBtnCover: false,
       });
+      if (type == 4) {
+        //拉起键盘
+        this.setData({
+          isshowkeyboard: true,
+          inputFocus: true,
+        });
 
+      }
     }
   },
 
   //键盘弹出监听
-  onKeyBoardFocus: function(event) {
+  // onKeyBoardFocus: function(event) {
 
-    if (this.data.isshowenmoji) {
-      //此时表情键盘是出来的，要收起表情出键盘，先将占位高度抹去
-      var height = this.data.zhanweiheight;
-      height = height - (this.data.keyboardheight * 750 / systemInfo.windowWidth);
-      this.setData({
-        zhanweiheight: height,
-      });
-    }
-
-
-    var keyboardheight = event.detail.height
-    this.setData({
-      isshowkeyboard: true,
-      keyboardheight: keyboardheight,
-      emojiH: keyboardheight * 0.8 / 3,
-      emojiW: systemInfo.windowWidth / 7,
-      inputFocus: true,
-      //收起表情
-      isshowenmoji: false,
-    });
+  //   if (this.data.isshowenmoji) {
+  //     //此时表情键盘是出来的，要收起表情出键盘，先将占位高度抹去
+  //     var height = this.data.zhanweiheight;
+  //     height = height - (this.data.keyboardheight * 750 / systemInfo.windowWidth);
+  //     this.setData({
+  //       zhanweiheight: height,
+  //     });
+  //   }
 
 
-  },
+  //   var keyboardheight = event.detail.height
 
-  // 键盘收起监听
-  onKeyBoardHidden: function(event) {
+  //   this.setData({
+  //     isshowkeyboard: true,
+  //     keyboardheight: keyboardheight,
+  //     emojiH: keyboardheight * 0.8 / 3,
+  //     emojiW: systemInfo.windowWidth / 7,
+  //     //收起表情
+  //     isshowenmoji: false,
+  //     inputFocus: true,
 
-    //如果表情面板是展示状态,认为现在是需要键盘的状态
-    if (this.data.isshowenmoji) {
-      this.setData({
-        isshowkeyboard: true,
-      });
-    } else {
-      this.setData({
-        isshowkeyboard: false,
-        inputFocus: false,
-      });
-    }
+  //   });
 
-  },
+  // },
 
-  //表情弹出键的点击
-  onEmojiClick: function() {
-    if (!this.data.isshowenmoji) {
-      //此时键盘弹出，点击出表情
+  // // 键盘收起监听
+  // onKeyBoardHidden: function(event) {
 
-      this.setData({
-        isshowenmoji: true,
-      });
+  //   //如果表情面板是展示状态,认为现在是需要键盘的状态
+  //   if (this.data.isshowenmoji) {
+  //     this.setData({
+  //       isshowkeyboard: true,
+  //     });
+  //   } else {
+  //     this.setData({
+  //       isshowkeyboard: false,
+  //       inputFocus: false,
+  //     });
+  //   }
 
+  // },
 
-      //如果表情展示，占位高度加上表情高度，如果表情收起，占位高度减去表情高度
-      var height = this.data.zhanweiheight;
+  // //表情弹出键的点击
+  // onEmojiClick: function() {
+  //   if (!this.data.isshowenmoji) {
+  //     //此时键盘弹出，点击出表情
 
-      height = height + (this.data.keyboardheight * 750 / systemInfo.windowWidth);
-
-
-      this.setData({
-        zhanweiheight: height
-      });
-
-
-    } else {
-
-      var height = this.data.zhanweiheight;
-      height = height - (this.data.keyboardheight * 750 / systemInfo.windowWidth);
-      this.setData({
-        zhanweiheight: height
-      });
+  //     this.setData({
+  //       isshowenmoji: true,
+  //     });
 
 
-      //此时键盘收起状态
-      this.setData({
-        isshowenmoji: false,
-        inputFocus: true,
-      });
+  //     //如果表情展示，占位高度加上表情高度，如果表情收起，占位高度减去表情高度
+  //     var height = this.data.zhanweiheight;
 
-    }
-  },
+  //     height = height + (this.data.keyboardheight * 750 / systemInfo.windowWidth);
 
-  /**只要输入发生变化就会触发这个事件，就能从这个事件中获取textare的输入值。 */
-  bindinput: function (e) {
-    this.setData({
-      inputvalue: e.detail.value
-    });
-  },
-  //表情建点击
-  onEmojiSelect:function(event){
-    var index = event.currentTarget.dataset.index;
-    var value = this.data.inputvalue;
-    this.setData({
-      inputvalue: value + "😂"
-    });
-  },
+
+  //     this.setData({
+  //       zhanweiheight: height
+  //     });
+
+
+  //   } else {
+
+  //     var height = this.data.zhanweiheight;
+  //     height = height - (this.data.keyboardheight * 750 / systemInfo.windowWidth);
+  //     this.setData({
+  //       zhanweiheight: height
+  //     });
+
+
+  //     //此时键盘收起状态
+  //     this.setData({
+  //       isshowenmoji: false,
+  //       inputFocus: true,
+  //     });
+
+  //   }
+  // },
+
+  // /**只要输入发生变化就会触发这个事件，就能从这个事件中获取textare的输入值。 */
+  // bindinput: function(e) {
+  //   this.setData({
+  //     inputvalue: e.detail.value
+  //   });
+  // },
+  // //表情建点击
+  // onEmojiSelect: function(event) {
+  //   var index = event.currentTarget.dataset.index;
+  //   var value = this.data.inputvalue;
+  //   value = value ? value : '';
+  //   this.setData({
+  //     inputvalue: value + "[" + this.data.enmojis[index].content + "]"
+  //   });
+  //   //将光标移动到最后
+  // },
+
+  // //触摸关闭表情，键盘
+  // onTouchHiddenEmoji: function() {
+
+  //   if (this.data.isshowenmoji) {
+  //     var height = this.data.zhanweiheight;
+  //     height = height - (this.data.keyboardheight * 750 / systemInfo.windowWidth);
+  //     this.setData({
+  //       zhanweiheight: height
+  //     });
+  //   }
+
+  //   this.setData({
+  //     isshowenmoji: false,
+  //     inputFocus: false,
+  //     isshowkeyboard: false,
+  //   });
+  // },
+
+  // //点击发送评论按钮
+  // onClickSend: function() {
+  //   //获取评论
+  //   var content = this.data.inputvalue;
+  //   if (!content) {
+  //     this.toast.showToast("评论不能为空");
+  //     return;
+  //   }
+  //   //去除首尾空格
+  //   content = content.replace(/(^\s*)|(\s*$)/g, "");
+  //   if (!content) {
+  //     this.toast.showToast("评论不能为空");
+  //     return;
+  //   }
+
+
+  //   if (this.data.isSendPl) {
+  //     return;
+  //   }
+  //   this.data.isSendPl = true;
+
+  //   var that = this;
+  //   app.requestWithSessionId({
+  //     url: 'https://app.xiaogechui.cn/webservice/article/comment.ashx?action=AddComment&artid=' + that.data.artid + "&toplid=0",
+  //     needlogin: true,
+  //     data: {
+  //       comment: encodeURIComponent(content),
+  //     },
+  //     header: {
+  //       'content-type': 'application/json' // 默认值
+  //     },
+  //     success(res) {
+  //       if (res.data.status != 0) {
+  //         //接口状态码错误
+  //         wx.showModal({
+  //           title: '请求异常',
+  //           content: '服务器繁忙，请稍后访问',
+  //         });
+  //         return;
+  //       }
+
+  //       if (res.data.msg) {
+  //         that.toast.showToast(res.data.msg);
+  //       }
+
+  //       //评论成功
+  //       //收起键盘，表情
+  //       that.onTouchHiddenEmoji();
+  //       //刷新界面,
+  //       that.data.pldata.items.unshift({
+  //         PLID: res.data.plid,
+  //         CONTENT: decodeURIComponent(content),
+  //         ZANCNT: 0,
+  //         DLEVEL: 1,
+  //         ZANSTATUS: 0,
+  //         USERID: app.globalData.requestParams.userid,
+  //         NICKNAME: app.globalData.userInfo.nickName,
+  //         HEADURL: app.globalData.userInfo.avatarUrl,
+  //         likepic: '../imgs/content_btn_like.png',
+  //         emojiMsg: emojiFn.emojiAnalysis([content]),
+  //         clickLikeAnimation: {},
+  //       })
+  //       var plcount = that.data.artdata.plcnt;
+  //       if (!plcount){
+  //         plcount = 0;
+  //       }
+  //       that.setData({
+  //         inputvalue: "", //清空输入框
+  //         ['pldata.items']: that.data.pldata.items,
+  //         plcount: parseInt(plcount)+1,
+  //         ['artdata.plcnt']: parseInt(plcount) + 1
+  //       });
+
+  //       // console.log(that.data.pldata.items[0]);
+
+  //       //拿到栈页面
+  //       var arrPages = getCurrentPages();
+  //       if (-1 != that.data.dataIndex && arrPages.length > 1 && (arrPages[arrPages.length - 2].route == 'pages/index/index' || arrPages[arrPages.length - 2].route == 'pages/myzancollectioncomments/myzancollectioncomments')) {
+  //         //从首页列表页打开的详情页,刷新首页数据
+  //         var plcount = arrPages[arrPages.length - 2].data.CurListData.items[that.data.dataIndex].plcnt;
+  //         arrPages[arrPages.length - 2].setData({
+  //           ['CurListData.items[' + that.data.dataIndex + '].plcnt']: parseInt(plcount) + 1,
+  //           ['CurListData.items[' + that.data.dataIndex + '].commentstatus']: 1,
+  //         });
+  //       }
+
+
+
+  //     },
+  //     complete: function() {
+  //       that.data.isSendPl = false;
+  //     }
+  //   });
+
+
+  // },
 
 })

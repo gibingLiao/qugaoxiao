@@ -25,7 +25,7 @@
   border-radius: 50rpx;
   margin-left: -244rpx;
   color: white;
-  font-size: 32rpx;
+  font-size: 36rpx;
 }
 
 .btn-tuijian:after {

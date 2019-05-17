@@ -17,7 +17,7 @@
   <text style='color:{{tuwencolor}};font-weight:{{tuwenFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='1'>图文</text>
   <text style='color:{{duanzicolor}};font-weight:{{duanziFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='2'>段子</text>
   <text style='color:{{dongtucolor}};font-weight:{{dongtuFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='3'>动图</text>
-  <text style='color:{{shipincolor}};font-weight:{{shipinFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='4'>视频</text>
+  <text style='color:{{shipincolor}};font-weight:{{shipinFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='4'>最新</text>
   <text style='color:{{repingcolor}};font-weight:{{repingFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='5'>热评</text>
   <text style='color:{{biaoqiancolor}};font-weight:{{biaoqianFontWeight}}' class='nav-menu-item' bindtap="SelectMenu" data-type='6'>标签</text>
   <view style='margin-left:{{indicatorLeft}}px' class='nav-menu-indicator' animation="{{indicatorAnimation}}" bindtransitionend="onIndicatorAnimationEnd" animation-fill-mode="forwards" />
@@ -48,7 +48,7 @@
 
     <!--视频类-->
     <view class='art-item art-video' bindtap="GoArtDetail" data-index='{{index}}' wx:if="{{item.atype=='1'||item.atype=='3'}}">
-      <template is="art-top" data="{{mark:item.mark}}" />
+      <!-- <template is="art-top" data="{{mark:item.mark}}" /> -->
       <view class='art-item-con'>
         <text class='art-item-con-title' wx:if="{{item.title&&item.title.length>0}}">{{item.title}}</text>
         <view class='art-item-con-img-box'>
@@ -74,7 +74,7 @@
 
     <!--图片类-->
     <view class='art-item art-image' bindtap="GoArtDetail" data-index='{{index}}' wx:if="{{item.atype=='2'||item.atype=='4'||item.atype=='5'}}">
-      <template is="art-top" data="{{mark:item.mark}}" />
+      <!-- <template is="art-top" data="{{mark:item.mark}}" /> -->
       <view class='art-item-con'>
         <text class='art-item-con-title' wx:if="{{item.title&&item.title.length>0}}">{{item.title}}</text>
         <view class='art-item-con-img-box'>
@@ -89,13 +89,16 @@
           <!--覆盖一层展示gif的层，加载完成展示，正在加载不展示-->
           <!--<image  class="art-item-con-img-gif-show {{item.imgstyle}}" style="display:{{item.showaddress?'block':'none'}};z-index:1;position: absolute;"  src="{{item.showimg}}" mode='widthFix' catchtap='onPicClick' data-index='{{index}}' bindload="gifImageLoad"/>-->
 
-          <view class='art-item-con-img-mark' wx:if="{{item.zhaiyao&&item.zhaiyao.length>0&&item.zhaiyao=='查看全文'}}">
-            <text class='art-item-con-img-mark-text'>{{item.zhaiyao}}</text>
-            <text class='art-item-con-img-mark-text art-item-con-img-mark-text-seeall' wx:if="{{item.zhaiyao_seeall.length>0}}">{{item.zhaiyao_seeall}}</text>
+          <view class='art-item-con-img-mark' wx:if="{{item.zhaiyao_seeall&&item.zhaiyao_seeall.length>0&&(!item.zhaiyao||item.zhaiyao.length<=0)}}">
+            <!-- <text class='art-item-con-img-mark-text'>{{item.zhaiyao}}</text> -->
+            <!-- 只有查看全文四个字 -->
+            <image src='../imgs/content_icon_view.png' class='img-seeall'></image>
+            <text class='art-item-con-img-mark-text'>{{item.zhaiyao_seeall}}</text>
           </view>
           <view class='art-item-con-img-mark art-item-con-img-mark-left' wx:if="{{item.zhaiyao&&item.zhaiyao.length>0&&item.zhaiyao!='查看全文'}}">
             <text class='art-item-con-img-mark-text'>{{item.zhaiyao}}</text>
             <text class='art-item-con-img-mark-text art-item-con-img-mark-text-seeall' wx:if="{{item.zhaiyao_seeall.length>0}}">{{item.zhaiyao_seeall}}</text>
+
           </view>
           <image style="display:{{item.showimg?'none':'block'}};" class="art-item-con-img-gif" catchtap='onPicClick' data-index='{{index}}' src="../imgs/content_btn_playgif.png" wx:if="{{item.atype=='4'}}"></image>
         </view>
@@ -105,7 +108,7 @@
 
     <!--段子类-->
     <view class='art-item art-text' bindtap="GoArtDetail" data-index='{{index}}' wx:if="{{item.atype=='0'}}">
-      <template is="art-top" data="{{mark:item.mark}}" />
+      <!-- <template is="art-top" data="{{mark:item.mark}}" /> -->
       <view class='art-item-con'>
         <text catchtap='onItemTagClick' data-tagid='{{CurListData.items[index].tagid}}' class='art-item-con-tag' wx:if="{{item.tag&&item.tag.length>0}}">{{item.tag}} </text>
         <text class='art-item-con-text'>{{item.zhaiyao}}</text>
@@ -116,6 +119,11 @@
   </block>
 
 </view>
+
+<view class='container-loadingmore' wx:if="{{showloadingjuhua}}">
+  <image class='image-loadingmore' src='../imgs/loadgif.gif'></image>
+</view>
+
 
 <!--热点标签层-->
 <view class='container-biaoqian' wx:if="{{isShowHotTags&&itemMaleHot.length>0}}">
@@ -130,6 +138,36 @@
   <block wx:for="{{itemFemaleHot}}" wx:for-item="item" wx:key="TAGID">
     <text style='color:{{item.showtextcolor}};background:{{item.showbg}}' class='text-malehot-tag' catchtap='onSelectHotTagClick' data-type='1' data-index='{{index}}'>{{item.TAG}}</text>
   </block>
+</view>
+
+<!--下拉刷新,刷新一大波的浮层-->
+
+<text class='text-refresh-more' wx:if="{{showtextrefreshmore}}" animation="{{showtextrefreshmoreanimation}}">为你刷新了一大波笑点</text>
+
+<!--推荐分享的提示框-->
+<view class='container-share-tip' catchtouchmove='catchtouchmove' wx:if="{{showsharetip}}">
+  <view class='container-share-whole'>
+    <image class='image-share-tip-top' src='../imgs/float_notice_tjxj.png'></image>
+    <view class='container-share-tip-close' catchtap='ontuijiansharecloseclick'>
+      <image class='image-share-tip-close' src='../imgs/colse_tip.png'></image>
+    </view>
+    <text class='text-share-tip1'>觉得我们不错的话</text>
+    <text class='text-share-tip2'>随时推荐给好友哦!</text>
+    <button class='btn-share-tip' open-type="share" data-type="1">立即推荐</button>
+  </view>
+</view>
+
+<!--添加去搞笑小程序-->
+<view class='container-tianjia-tip' catchtouchmove='catchtouchmove' wx:if="{{showaddtip}}">
+  <image class='image-tianjia-tip-arrow' src='../imgs/float_notice_tjxcx.png'></image>
+  <view class='container-tianjia-tip-kuang'>
+    <image class='image-tianjia-tip-top' src='../imgs/float_notice_tjxcxt.png'></image>
+    <text class='text-tianjia-tip1'>+++</text>
+    <text class='text-tianjia-tip2'>喜欢我们，请手动来撩</text>
+    <text class='text-tianjia-tip3'><text style='color:#000'>“ </text>添加到我的小程序<text style='color:#000'> ”</text></text>
+    <text class='text-tianjia-know' catchtap='onaddxcxknowclick'>知道了</text>
+    <text class='text-tianjia-hasadd' catchtap='onhasaddxcxclick'>已添加</text>
+  </view>
 
 </view>
 

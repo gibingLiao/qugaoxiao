@@ -1,5 +1,7 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "toast": "../../utils/toast/toast"
+  },
   "enablePullDownRefresh": true,
   "navigationBarTitleText": "详情"
 }

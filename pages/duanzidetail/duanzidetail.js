@@ -1,37 +1,45 @@
 // pages/duanzidetail/duanzidetail.js
 
-var emojiFn = require('../../utils/emoj.js');
 
+const Page = require('../../utils/alading/ald-stat.js').Page;
+
+import sendcomment from '../template/sendcomment.js';
+var systemInfo = wx.getSystemInfoSync();
+var emojiFn = require('../../utils/emoj.js');
 const app = getApp();
 
-Page({
+var timeout = undefined;
 
+Page({
+  ...sendcomment.options,
   /**
    * 页面的初始数据
    */
   data: {
+    ...sendcomment.data,
     //页面的数据源
     artdata: {
 
     },
     //评论的数据源
     pldata: {
-
+      items: []
     },
+    platform: systemInfo.platform,
     //点赞的动画
     clickLikeAnimation: {},
     isAnimatingLike: false, //点赞动画是否正在执行
     isAnimatingPlLike: false, //是否正在执行评论点赞动画
-    isAnimatingCollection: false, //是否正在执行收藏动画
+    isRequestCollection: false, //是否正在请求收藏接口
     //artid
     artid: 0,
-    zhaiyao: '',
+    // zhaiyao: '',
     pagenum: 1, //加载页码
     isLoadingContent: false, //是否正在加载整体数据
     isLoadingPL: false, //是否正在加载评论数据
     hasMorePl: true, //有更多评论
     stime: '',
-    zhanweiheight: 110,
+    zhanweiheight: 150,
     dataIndex: -1, //点进来的索引值
 
     plcount: 0, //评论数量
@@ -39,16 +47,45 @@ Page({
     //是否展示登录覆盖的btn
     isShowBtnCover: true,
 
+    fromtype: "", //从什么方式点击进来
+
+    disableinput: false, //页面滚动的时候禁用掉输入框
+
   },
+
+
+  onPageScroll: function(event) {
+    //滚动中，禁用输入框
+    if (!this.data.disableinput) {
+      this.setData({
+        disableinput: true,
+      });
+    }
+    clearTimeout(timeout);
+    var that = this;
+    timeout = setTimeout(() => {
+      if (that.data.disableinput) {
+        that.setData({
+          disableinput: false,
+        });
+      }
+    }, 100);
+  },
+
 
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function(options) {
+
+    this.bindContext(this, systemInfo, emojiFn);
+
+    this.data.fromtype = options.fromtype;
     this.data.artid = options.artid;
-    this.data.zhaiyao = decodeURIComponent(options.zhaiyao);
+    // this.data.zhaiyao = decodeURIComponent(options.zhaiyao);
     this.data.dataIndex = options.dataindex;
     this.getContentData(false);
+
 
   },
 
@@ -80,9 +117,15 @@ Page({
           });
           return;
         }
+
+        // console.log(res.data);
+        // console.log(that.data.artid);
+
         //转码操作
         res.data.content = decodeURIComponent(res.data.content);
-        res.data.zhaiyao = that.data.zhaiyao
+        res.data.zhaiyao = decodeURIComponent(res.data.zhaiyao);
+
+        // res.data.plcnt = parseInt(res.data.plcnt);
 
         var tags = res.data.tags;
         if (tags) {
@@ -90,7 +133,7 @@ Page({
             if (i == tags.length - 1) {
               tags[i].TAG = decodeURIComponent(tags[i].TAG);
             } else {
-              tags[i].TAG = decodeURIComponent(tags[i].TAG + '   ');
+              tags[i].TAG = decodeURIComponent(tags[i].TAG);
             }
 
           }
@@ -104,20 +147,37 @@ Page({
         }
 
 
-        if ('1' == res.data.collectstatus) {
-          res.data.collctionpic = '../imgs/content_btn_collected.png';
-        } else {
-          res.data.collctionpic = '../imgs/content_btn_collect.png';
-        }
-
-
 
         that.setData({
           artdata: res.data,
+        }, () => {
+          if (that.data.fromtype == 'share') {
+            //显示分享蒙层
+            var hasshowtip = wx.getStorageSync('show-share-duanzi-tip');
+
+            if (!hasshowtip) {
+              wx.createSelectorQuery().selectAll('.container-share').boundingClientRect((ret) => {
+                ret.forEach((item, index) => {
+                  if (!that.data.shareTop) {
+                    //展示分享蒙层
+                    that.setData({
+                      shareTop: item.top - 310 * 0.49 * systemInfo.windowWidth / 750,
+                      shareLeft: systemInfo.windowWidth - (284 + 26) * systemInfo.windowWidth / 750,
+                      showShareTip: true,
+                    });
+                    //记录已经展示过
+                    wx.setStorageSync('show-share-duanzi-tip', true);
+                  }
+
+                })
+              }).exec()
+            }
+          }
         });
 
         //请求评论数据
         that.getPLData(isLoadmore);
+
 
       },
       complete: function() {
@@ -126,6 +186,15 @@ Page({
         that.chechLogin();
       },
     })
+  },
+
+
+  //分享引导层触摸
+  onsharetipclick: function() {
+    //关闭引导层
+    this.setData({
+      showShareTip: false,
+    });
   },
 
   /**
@@ -153,9 +222,6 @@ Page({
       },
       header: {
         'content-type': 'application/json' // 默认值
-      },
-      complete: function() {
-        that.data.isLoadingPL = false;
       },
       success(res) {
         // console.log(res.data);
@@ -214,12 +280,13 @@ Page({
 
         //评论数量
         that.setData({
-          plcount: that.data.pldata.items.length,
+          plcount: that.data.artdata.plcnt, //that.data.pldata.items.length,
         });
 
       },
       complete: function(res) {
         that.chechLogin();
+        that.data.isLoadingPL = false;
       }
 
     })
@@ -318,12 +385,15 @@ Page({
         animation.opacity(0).scale(2, 2).step(); //修改透明度,放大
 
 
-        var artdata = that.data.artdata;
-        artdata.zanstatus = zanStatus;
-        artdata.zancnt = zanCount;
+        // var artdata = that.data.artdata;
+        // artdata.zanstatus = zanStatus;
+        // artdata.zancnt = zanCount;
+
 
         that.setData({
-          artdata: artdata,
+          ['artdata.zanstatus']: zanStatus,
+          ['artdata.zancnt']: zanCount,
+          ['artdata.likepic']: that.data.artdata.likepic,
           clickLikeAnimation: animation.export(), //点赞动画
           isAnimatingLike: true,
         });
@@ -477,9 +547,10 @@ Page({
    * 收藏的点击
    */
   onCollectionClick: function() {
-    if (this.data.isAnimatingCollection) {
+    if (this.data.isRequestCollection) {
       return;
     }
+    this.data.isRequestCollection = true;
     //请求点赞接口
     var that = this;
     //调用点赞接口
@@ -507,21 +578,12 @@ Page({
           that.data.artdata.collctionpic = '../imgs/content_btn_collected.png';
         }
 
-        //赋值动画
-        var animation = wx.createAnimation({
-          duration: 600,
-          timingFunction: 'ease'
-        })
-        animation.opacity(0).scale(2, 2).step(); //修改透明度,放大
 
-
-        var artdata = that.data.artdata;
-        artdata.collectstatus = collectionStatus;
+        // var artdata = that.data.artdata;
+        // artdata.collectstatus = collectionStatus;
 
         that.setData({
-          artdata: artdata,
-          clickCollectionAnimation: animation.export(), //点赞动画
-          isAnimatingCollection: true,
+          ['artdata.collectstatus']: collectionStatus,
         });
         //拿到栈页面
         var arrPages = getCurrentPages();
@@ -537,30 +599,11 @@ Page({
       },
       complete: function(res) {
         that.chechLogin();
+        that.data.isRequestCollection = false;
       }
     });
   },
 
-
-  //收藏动画结束
-  onCollectionAnimationEnd: function() {
-    //这个动画会执行两次，每个动画执行完毕阶段会进一次，一个放大，一个渐变，会进两次回调
-    if (!this.data.isAnimatingCollection) {
-      return;
-    }
-
-    //赋值动画
-    var animation = wx.createAnimation({
-      duration: 0,
-    })
-    animation.opacity(1).scale(1, 1).step(); //修改透明度,放大
-
-    //清除动画
-    this.setData({
-      clickCollectionAnimation: animation.export(), //收藏动画
-      isAnimatingCollection: false, //执行收藏动画完毕
-    });
-  },
 
 
 
@@ -569,7 +612,7 @@ Page({
    * 生命周期函数--监听页面初次渲染完成
    */
   onReady: function() {
-
+    this.toast = this.selectComponent("#toast");
   },
 
   /**
@@ -641,7 +684,7 @@ Page({
     // 来自页面内的按钮的转发
     if (options) {
       if (this.data.artdata.title) {
-        shareObj.title = this.data.artdata.title;
+        shareObj.title = "【段子】" + this.data.artdata.title;
       }
       if (this.data.artdata.imgurl) {
         shareObj.imageUrl = this.data.artdata.imgurl;
@@ -651,8 +694,23 @@ Page({
         shareObj.path = shareObj.path + "?share_artid=" + this.data.artid + "&share_atype=" + this.data.artdata.atype;
       }
 
-      if (this.data.artdata.zhaiyao) {
-        shareObj.path = shareObj.path + "&share_zhaiyao=" + encodeURIComponent(this.data.artdata.zhaiyao);
+      // if (this.data.artdata.zhaiyao) {
+      // shareObj.path = shareObj.path + "&share_zhaiyao=" + encodeURIComponent(this.data.artdata.zhaiyao);
+      // }
+
+      //去分享的图片，如果有单独配置，覆盖分享图片
+
+      if (this.data.artdata.xcximgurl) {
+        shareObj.imageUrl = decodeURIComponent(this.data.artdata.xcximgurl);
+      }
+
+
+      //统计分享
+      if (options.from == 'button') {
+        app.reportUserShare(1, 1, this.data.artid);
+
+      } else if (options.from == 'menu') {
+        app.reportUserShare(1, 2, this.data.artid);
       }
 
     }
@@ -676,12 +734,15 @@ Page({
       } else if (type == 3) {
         //收藏需要登录
         app.CheckLoginCallBack(this.onCollectionClick);
+      } else if (type == 4) {
+        //评论需要登录
+        app.CheckLoginCallBack(this.chechLogin, type);
       }
     }
   },
 
   /**校验覆盖登录按钮 */
-  chechLogin: function() {
+  chechLogin: function(type) {
     if (!app.globalData.requestParams.token || 0 == app.globalData.requestParams.token) {
       this.setData({
         isShowBtnCover: true,
@@ -692,8 +753,18 @@ Page({
         isShowBtnCover: false,
       });
 
+      if (type == 4) {
+        //拉起键盘
+        this.setData({
+          isshowkeyboard: true,
+          inputFocus: true,
+        });
+
+      }
+
     }
 
 
   },
+
 })

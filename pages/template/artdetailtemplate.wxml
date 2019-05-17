@@ -5,23 +5,57 @@
   <!--下面的标签，评论和输入-->
   <view class='container-tags' wx:if="{{artdetaildata.tags&&artdetaildata.tags.length>0}}">
     <block wx:for="{{artdetaildata.tags}}" wx:for-item="item" wx:for-index="idx" wx:key="TAGID">
-      <text catchtap='onHotTagClick' data-tagid='{{item.TAGID}}' class='text-tags-style' style='color:#51adf5' wx:if="{{idx==0}}">{{item.TAG}}</text>
-      <text catchtap='onHotTagClick' data-tagid='{{item.TAGID}}' class='text-tags-style' style='color:#9e9e9e' wx:else>{{item.TAG}}</text>
+      <text decode='{{true}}' catchtap='onHotTagClick' data-tagid='{{item.TAGID}}' class='text-tags-style' style='color:#51adf5' wx:if="{{idx==0}}">{{item.TAG}}&nbsp;&nbsp;</text>
+
+      <text decode='{{true}}' catchtap='onHotTagClick' data-tagid='{{item.TAGID}}' class='text-tags-style' style='color:#9e9e9e' wx:else>&nbsp;{{item.TAG}}&nbsp;&nbsp;</text>
     </block>
   </view>
 
+
   <!--点赞-->
-  <view class='container-like' bindtap='onClickLike'>
+  <!-- <view style='margin-top:{{(artdetaildata.tags&&artdetaildata.tags.length>0)?22:42}}rpx;' class='container-like' bindtap='onClickLike'>
     <image class='img-like' src="{{artdetaildata.likepic}}" wx:if="{{isAnimatingLike}}" />
     <image class='img-like' src="{{artdetaildata.likepic}}" animation="{{clickLikeAnimation}}" bindtransitionend="onLikeAnimationEnd" />
-    <view class='view-like-count'>{{artdetaildata.zancnt}}</view>
-    <!--覆盖登录button-->
-    <button wx:if="{{isShowBtnCover}}" class='btn-login-zan-conetnt' catchtap='loginCatch' data-type='0' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo'></button>
+    <view class='view-like-count'>{{artdetaildata.zancnt}}</view> -->
+  <!--覆盖登录button-->
+  <!-- <button wx:if="{{isShowBtnCover}}" class='btn-login-zan-conetnt' catchtap='loginCatch' data-type='0' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo'></button>
+  </view> -->
+
+  <!--点赞收藏，分享区-->
+  <view style='margin-top:{{(artdetaildata.tags&&artdetaildata.tags.length>0)?32:52}}rpx;' class='container-like-colection-share'>
+
+    <!--点赞区域-->
+    <view class='container-like' bindtap='onClickLike'>
+      <image class='img-like' src="{{artdetaildata.likepic}}" wx:if="{{isAnimatingLike}}" />
+      <image class='img-like' src="{{artdetaildata.likepic}}" animation="{{clickLikeAnimation}}" bindtransitionend="onLikeAnimationEnd" />
+      <text class='text-like-count'>{{artdetaildata.zancnt}}</text>
+      <!--覆盖登录button-->
+      <button wx:if="{{isShowBtnCover}}" class='btn-login-zan-conetnt' catchtap='loginCatch' data-type='0' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo'></button>
+    </view>
+
+    <!--举报按钮-->
+    <view class='container-jubao' bindtap='onJbClick'>
+      <image class='img-jubao' src='../imgs/jb.png'></image>
+    </view>
+
+    <!--分享按钮-->
+    <view class='container-share'>
+      <image src='../imgs/content_btn_weixinshare.png' class='image-share'></image>
+      <text class='text-share'>分享</text>
+      <button class='btn-share' open-type='share'  plain="true"></button>
+    </view>
+
+    <!--收藏区域-->
+    <view style="background:{{artdetaildata.collectstatus=='1'?'#cdcdcd':'linear-gradient(to right, #ffcc36, #feb833)'}}" class='container-collection' bindtap='onCollectionClick'>
+      <image style="margin-left:{{artdetaildata.collectstatus=='1'?22:32}}rpx" src='../imgs/content_btn_collect1.png' class='image-collection'></image>
+      <text class='text-collection'>{{artdetaildata.collectstatus=='1'?'已收藏':'收藏'}}</text>
+      <button wx:if="{{isShowBtnCover}}" class='collection-login-btn' catchtap='loginCatch' data-type='3' bindgetuserinfo="getUserInfoCallBack" open-type='getUserInfo' />
+    </view>
 
   </view>
 
   <!--没有评论时候的底部空白高度-->
-  <view style='height:200rpx' wx:if="{{artdetaildata.plcnt&&artdetaildata.plcnt<=0}}"></view>
+  <view style='height:200rpx' wx:if="{{artdetaildata.plcnt <= 0}}"></view>
 
   <!--有评论的时候的评论展示-->
   <view class='container-comments-count' wx:else>
@@ -37,7 +71,7 @@
 
     <!--用户评论-->
     <block wx:for="{{pldetaildata.items}}" wx:for-item="item" wx:for-index="idx" wx:key="id">
-      <view class='container-pl'>
+      <view class='container-pl' bindtap='onPlClick' data-item='{{item}}'>
         <!--头像-->
         <image class='pl-head' src='{{item.HEADURL}}' />
         <!--昵称，评论内容-->
